@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste d'objets</title>
+    <style>
+        /* --- LOOK & FEEL GÉNÉRAL --- */
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* En-tête avec Titre et Recherche (style "app" comme la capture) */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            background-color: #fce4ec; /* rose clair */
+            padding: 12px 18px;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid #f8bbd0;
+        }
+
+        .title {
+            margin: 0;
+            flex: 1;
+            text-align: center;
+            color: #d81b60;
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        .search-container {
+            flex-shrink: 0;
+        }
+
+        .search-container input {
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid #d81b60;
+            outline: none;
+            width: 210px;
+            font-size: 0.9rem;
+            transition: width 0.25s ease;
+        }
+
+        .search-container input:focus {
+            width: 280px;
+        }
+
+        /* Conteneur pour le tableau (avec bord identique à la top-bar) */
+        .table-container {
+            border: 1px solid #f8bbd0;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.06);
+        }
+
+        /* --- TABLEAU --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* rend le tableau plus stable et lisible */
+        }
+
+        thead {
+            background-color: #f8bbd0; /* en-tête rose plus foncé */
+            color: #880e4f;
+        }
+
+        thead tr {
+            height: 36px;
+        }
+
+        th {
+            text-align: left;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+        }
+
+        tbody tr {
+            background-color: #ffffff;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #fff7fb;
+        }
+
+        tbody tr:hover {
+            background-color: #ffe6f3;
+        }
+
+        td {
+            padding: 8px 14px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+
+        /* Images (illustration) */
+        .img-cell {
+            width: 56px;
+        }
+
+        .img-cell img {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            display: block;
+            cursor: pointer;
+        }
+
+        /* Nom */
+        .name-cell {
+            font-weight: 600;
+            color: #d81b60;
+            white-space: nowrap;
+        }
+
+        /* Description + infobulle */
+        .desc-cell {
+            font-size: 0.9rem;
+            color: #555;
+            max-width: 420px;
+        }
+
+        .desc-container {
+            position: relative;
+        }
+
+        .desc-text {
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 360px;
+        }
+
+        .more-link {
+            margin-left: 6px;
+            font-size: 0.8rem;
+            color: #d81b60;
+            cursor: pointer;
+            text-decoration: underline;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .tooltip-box {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-top: 4px;
+            z-index: 10;
+            background: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 6px 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+            min-width: 260px;
+            max-width: 380px;
+            font-size: 0.85rem;
+            white-space: normal;
+        }
+
+        .tooltip-title {
+            font-weight: 600;
+            color: #d81b60;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .tooltip-price {
+            display: block;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .tooltip-effect {
+            display: block;
+            margin-top: 2px;
+            font-style: italic;
+            color: #444;
+        }
+
+        /* Afficher l'infobulle quand on survole la ligne (comme sur ta capture) */
+        tbody tr:hover .tooltip-box {
+            display: block;
+        }
+
+        /* Prix & Effet */
+        .price-cell {
+            font-size: 0.85rem;
+            color: #444;
+            white-space: nowrap;
+        }
+
+        .effect-cell {
+            font-size: 0.85rem;
+            color: #444;
+            max-width: 260px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Action (bouton Copy) */
+        .action-cell {
+            width: 100px;
+            text-align: center;
+        }
+
+        .copy-btn {
+            background: #ffffff;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #d81b60;
+            color: #ffffff;
+            border-color: #d81b60;
+        }
+
+        .copy-btn.copied {
+            background: #d81b60;
+            color: #ffffff;
+            border-color: #d81b60;
+        }
+
+        .copy-btn.copied::after {
+            content: "Copié !";
+            margin-left: 4px;
+            font-size: 0.7rem;
+        }
+
+        /* Modal item (image + détails) */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-inner {
+            background: #fff;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            padding: 16px 18px 18px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #d81b60;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            display: flex;
+            gap: 14px;
+        }
+
+        .modal-body img {
+            max-width: 160px;
+            max-height: 160px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            object-fit: cover;
+        }
+
+        .modal-text {
+            font-size: 0.9rem;
+            color: #444;
+        }
+
+        .modal-text p {
+            margin: 4px 0;
+        }
+
+        .modal-label {
+            font-weight: 600;
+        }
+
+        @media (max-width: 640px) {
+            .modal-body {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="top-bar">
+            <div style="width:24px;"></div> <!-- Petit espace à gauche, comme une icône/menu -->
+            <h1 class="title">Liste d'objets</h1>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Rechercher un objet..." onkeyup="filterTable()">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="inventoryTable">
+                <thead>
+                    <tr>
+                        <th>Illustration</th>
+                        <th>Nom</th>
+                        <th>Description</th>
+                        <th>Prix d'achat</th>
+                        <th>Prix de vente</th>
+                        <th>Effet (consommation)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal pour voir un item en grand / détails -->
+    <div id="itemModal" class="modal" onclick="closeItemModal()">
+        <div class="modal-inner" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalName"></h2>
+                <button class="modal-close" onclick="closeItemModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" alt="">
+                <div class="modal-text">
+                    <p id="modalDescription"></p>
+                    <p id="modalPrice"></p>
+                    <p id="modalEffect"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Données des objets -->
+    <script src="data.js"></script>
+
+    <script>
+        // On récupère les données depuis data.js (inventoryData)
+        const allItems = (typeof inventoryData !== "undefined") ? inventoryData : [];
+        let currentData = allItems.slice();
+
+        const tableBody = document.getElementById("tableBody");
+        const modal = document.getElementById("itemModal");
+        const modalName = document.getElementById("modalName");
+        const modalImage = document.getElementById("modalImage");
+        const modalDescription = document.getElementById("modalDescription");
+        const modalPrice = document.getElementById("modalPrice");
+        const modalEffect = document.getElementById("modalEffect");
+
+        function escapeHtml(str) {
+            return (str || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        function escapeForAttribute(str) {
+            return escapeHtml(str)
+                .replace(/'/g, "\\'")
+                .replace(/"/g, "&quot;");
+        }
+
+        function formatPrice(item) {
+            const buy = item.buyPrice || "";
+            const sell = item.sellPrice || "";
+
+            if (buy && sell) {
+                return `Achat : ${buy} — Vente : ${sell}`;
+            }
+            if (buy) {
+                return `Achat : ${buy}`;
+            }
+            if (sell) {
+                return `Vente : ${sell}`;
+            }
+            return "";
+        }
+
+        function summarizeEffect(effect) {
+            if (!effect) return "";
+            const plain = effect.replace(/\s+/g, " ").trim();
+            const maxLen = 110;
+            const dotIndex = plain.indexOf(".");
+
+            let summary;
+            if (dotIndex > 0 && dotIndex < maxLen) {
+                summary = plain.slice(0, dotIndex + 1);
+            } else {
+                summary = plain.slice(0, maxLen);
+            }
+
+            if (summary.length < plain.length) {
+                summary += " …";
+            }
+            return summary;
+        }
+
+        function buildRow(item, index) {
+            const name = item.name || item.nom || "";
+            const image = item.image || item.img || "";
+            const description = item.description || item.desc || "";
+            const effect = item.effect || item.effet || "";
+            const buy = item.buyPrice || "";
+            const sell = item.sellPrice || "";
+            const priceText = formatPrice(item);
+            const effectSummary = summarizeEffect(effect);
+
+            const copyText =
+                `${name} - ${description}` +
+                (priceText ? ` (${priceText})` : "") +
+                (effect ? ` | Effet : ${effect}` : "");
+
+            const rowHtml = `
+                <tr>
+                    <td class="img-cell">
+                        ${image ? `<img src="${image}" alt="${escapeForAttribute(name)}" onclick="openItemModal(${index})">` : ""}
+                    </td>
+                    <td class="name-cell">${escapeHtml(name)}</td>
+                    <td class="desc-cell">
+                        <div class="desc-container">
+                            <span class="desc-text">${escapeHtml(description)}</span>
+                            <button class="more-link" onclick="openItemModal(${index}); return false;">Plus</button>
+                            <div class="tooltip-box">
+                                <span class="tooltip-title">${escapeHtml(name)}</span>
+                                ${description ? `<span>${escapeHtml(description)}</span>` : ""}
+                                ${priceText ? `<span class="tooltip-price">${escapeHtml(priceText)}</span>` : ""}
+                                ${effect ? `<span class="tooltip-effect">${escapeHtml(effect)}</span>` : ""}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="price-cell">${escapeHtml(buy)}</td>
+                    <td class="price-cell">${escapeHtml(sell)}</td>
+                    <td class="effect-cell">${escapeHtml(effectSummary)}</td>
+                    <td class="action-cell">
+                        <button
+                            class="copy-btn"
+                            onclick="copyToClipboard('${escapeForAttribute(copyText)}', this)"
+                        >
+                            📋 Copy
+                        </button>
+                    </td>
+                </tr>
+            `;
+
+            return rowHtml;
+        }
+
+        // Construction du tableau
+        function loadTable(data) {
+            currentData = data.slice();
+            tableBody.innerHTML = "";
+            data.forEach((item, index) => {
+                tableBody.insertAdjacentHTML("beforeend", buildRow(item, index));
+            });
+        }
+
+        // Modal : ouverture / fermeture
+        function openItemModal(index) {
+            const item = currentData[index];
+            if (!item) return;
+
+            const name = item.name || item.nom || "";
+            const image = item.image || item.img || "";
+            const description = item.description || item.desc || "";
+            const effect = item.effect || item.effet || "";
+            const priceText = formatPrice(item);
+
+            modalName.textContent = name;
+            if (image) {
+                modalImage.src = image;
+                modalImage.alt = name;
+                modalImage.style.display = "block";
+            } else {
+                modalImage.src = "";
+                modalImage.alt = "";
+                modalImage.style.display = "none";
+            }
+
+            modalDescription.innerHTML = description ? `<span class="modal-label">Description :</span> ${escapeHtml(description)}` : "";
+            modalPrice.innerHTML = priceText ? `<span class="modal-label">Prix :</span> ${escapeHtml(priceText)}` : "";
+            modalEffect.innerHTML = effect ? `<span class="modal-label">Effet :</span> ${escapeHtml(effect)}` : "";
+
+            modal.classList.add("open");
+        }
+
+        function closeItemModal() {
+            modal.classList.remove("open");
+        }
+
+        // Recherche live sur nom / description / prix / effet
+        function filterTable() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+
+            const filtered = allItems.filter((item) => {
+                const name = (item.name || item.nom || "").toLowerCase();
+                const desc = (item.description || item.desc || "").toLowerCase();
+                const effect = (item.effect || item.effet || "").toLowerCase();
+                const buy = (item.buyPrice || "").toLowerCase();
+                const sell = (item.sellPrice || "").toLowerCase();
+                const price = formatPrice(item).toLowerCase();
+
+                return (
+                    name.includes(query) ||
+                    desc.includes(query) ||
+                    effect.includes(query) ||
+                    buy.includes(query) ||
+                    sell.includes(query) ||
+                    price.includes(query)
+                );
+            });
+
+            loadTable(filtered);
+        }
+
+        function showCopyFeedback(button) {
+            if (!button) return;
+            button.classList.add("copied");
+            if (button._copyTimeout) {
+                clearTimeout(button._copyTimeout);
+            }
+            button._copyTimeout = setTimeout(() => {
+                button.classList.remove("copied");
+            }, 1200);
+        }
+
+        // Copier dans le presse-papiers (sans alerte bloquante)
+        function copyToClipboard(text, button) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopyFeedback(button);
+                });
+            } else {
+                // Fallback très simple
+                const textarea = document.createElement("textarea");
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textarea);
+                showCopyFeedback(button);
+            }
+        }
+
+        // Chargement initial
+        loadTable(allItems);
+    </script>
+</body>
+</html>
