@@ -42,6 +42,9 @@
 
         .search-container {
             flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .search-container input {
@@ -56,6 +59,20 @@
 
         .search-container input:focus {
             width: 280px;
+        }
+
+        .clear-search-btn {
+            background: transparent;
+            border: none;
+            color: #d81b60;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+        }
+
+        .clear-search-btn:hover {
+            color: #880e4f;
         }
 
         /* Conteneur pour le tableau (avec bord identique à la top-bar) */
@@ -103,6 +120,7 @@
 
         tbody tr:hover {
             background-color: #ffe6f3;
+            cursor: pointer;
         }
 
         td {
@@ -371,6 +389,7 @@
             <h1 class="title">Liste d'objets</h1>
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="Rechercher un objet..." onkeyup="filterTable()">
+                <button class="clear-search-btn" type="button" onclick="clearSearch()">×</button>
             </div>
         </div>
 
@@ -590,6 +609,13 @@
             });
 
             loadTable(filtered);
+        }
+
+        function clearSearch() {
+            const input = document.getElementById("searchInput");
+            input.value = "";
+            loadTable(allItems);
+            input.focus();
         }
 
         function showCopyFeedback(button) {
