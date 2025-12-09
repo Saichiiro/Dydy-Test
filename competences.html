@@ -92,7 +92,7 @@
             width: 69px;
             height: 69px;
             display: block;
-            transition: filter 0.2s ease, transform 0.2s ease;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .skills-tab-circle img {
@@ -100,20 +100,37 @@
             height: 100%;
             object-fit: contain;
             display: block;
-            filter: drop-shadow(0 0 0 transparent);
-            transition: filter 0.2s ease;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .skills-tab-label {
             display: none;
         }
 
+        .skills-tab-btn:hover .skills-tab-circle {
+            transform: translateY(-2px) scale(1.05);
+        }
+
         .skills-tab-btn:hover .skills-tab-circle img {
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
+        }
+
+        .skills-tab-btn:active .skills-tab-circle {
+            transform: translateY(0) scale(0.98);
+            transition: all 0.08s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .skills-tab-btn:active .skills-tab-circle img {
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+        }
+
+        .skills-tab-btn.skills-active .skills-tab-circle {
+            transform: scale(1.08);
         }
 
         .skills-tab-btn.skills-active .skills-tab-circle img {
-            filter: drop-shadow(0 6px 12px rgba(216, 27, 96, 0.5));
+            filter: drop-shadow(0 8px 16px rgba(216, 27, 96, 0.4));
         }
 
         /* Panneau de droite */
@@ -174,8 +191,8 @@
         }
 
         .skills-points-btn {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             border-radius: var(--radius-sm);
             border: 1px solid #c7ccd6;
             background: linear-gradient(to bottom, #ffffff, #ccd3e0);
@@ -183,22 +200,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             padding: 0;
             color: #343a46;
-            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
-            transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+            transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .skills-points-btn:hover {
             background: linear-gradient(to bottom, #ffffff, #bfc7d6);
-            transform: translateY(-0.5px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.24);
+            transform: scale(1.08);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
         }
 
         .skills-points-btn:active {
-            transform: translateY(0);
-            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+            transform: scale(0.95);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+            transition: all 0.06s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .skills-points-btn:focus-visible {
@@ -224,20 +242,16 @@
             background: linear-gradient(to right, #d8dde6, #dee3ee);
             border-radius: var(--radius-md);
             border: 1px solid #b5bcc9;
-            padding: 4px 8px;
-            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
-            transition:
-                background 0.15s ease,
-                transform 0.12s ease,
-                box-shadow 0.15s ease;
+            padding: 6px 10px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: default;
         }
 
         .skills-line:hover {
             background: linear-gradient(to right, #cfd5e0, #e4e8f2);
-            transform: translateX(1px);
-            box-shadow:
-                0 1px 0 rgba(255, 255, 255, 0.9),
-                0 2px 4px rgba(0, 0, 0, 0.18);
+            transform: translateX(2px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
         }
 
         .skills-icon {
@@ -282,12 +296,25 @@
         /* Transitions fade simples */
         .skills-fade-out {
             opacity: 0;
-            transform: translateY(2px);
+            transform: translateY(-4px);
         }
 
         .skills-fade-in {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        /* Polish général */
+        .skills-panel-title {
+            transition: color 0.2s ease;
+        }
+
+        .skills-icon {
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .skills-line:hover .skills-icon {
+            transform: scale(1.1);
         }
 
         /* Responsive */
