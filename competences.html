@@ -61,22 +61,26 @@
             display: flex;
             flex-direction: column;
             gap: var(--space-4);
-            align-items: flex-start;
+            align-items: center;
             background: linear-gradient(to bottom, #edeff4, #dde1eb);
         }
 
         .skills-tab-btn {
-            width: 100%;
             display: flex;
             align-items: center;
-            gap: var(--space-2);
+            justify-content: center;
             background: transparent;
             border: none;
-            padding: var(--space-1);
+            padding: 0;
             cursor: pointer;
-            color: var(--color-gray-700);
-            font-size: var(--text-xs);
-            text-align: left;
+        }
+
+        .skills-tab-btn:nth-child(odd) {
+            align-self: flex-start;
+        }
+
+        .skills-tab-btn:nth-child(even) {
+            align-self: flex-end;
         }
 
         .skills-tab-btn:focus-visible {
@@ -85,46 +89,31 @@
         }
 
         .skills-tab-circle {
-            width: 46px;
-            height: 46px;
+            width: 69px;
+            height: 69px;
             display: block;
-            border-radius: 28%;
-            overflow: hidden;
+            transition: filter 0.2s ease, transform 0.2s ease;
         }
 
         .skills-tab-circle img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             display: block;
+            filter: drop-shadow(0 0 0 transparent);
+            transition: filter 0.2s ease;
         }
 
         .skills-tab-label {
-            flex: 1;
-            line-height: 1.2;
-            opacity: 0.9;
+            display: none;
         }
 
-        .skills-tab-btn:hover .skills-tab-circle {
-            transform: translateY(-1px);
-            box-shadow:
-                inset 0 0 4px rgba(255, 255, 255, 0.8),
-                0 3px 6px rgba(0, 0, 0, 0.35);
+        .skills-tab-btn:hover .skills-tab-circle img {
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
         }
 
-        .skills-tab-btn.skills-active .skills-tab-circle {
-            border-color: var(--color-primary);
-            box-shadow:
-                0 0 0 3px rgba(216, 27, 96, 0.18),
-                0 3px 7px rgba(0, 0, 0, 0.35);
-            background: radial-gradient(circle at 30% 20%, #ffffff 0, #fce4ec 40%, #f8bbd0 100%);
-            color: var(--color-primary);
-        }
-
-        .skills-tab-btn.skills-active .skills-tab-label {
-            color: var(--color-gray-900);
-            font-weight: var(--font-semibold);
-            opacity: 1;
+        .skills-tab-btn.skills-active .skills-tab-circle img {
+            filter: drop-shadow(0 6px 12px rgba(216, 27, 96, 0.5));
         }
 
         /* Panneau de droite */
@@ -385,7 +374,7 @@
         const skillsCategories = [
             {
                 id: "arts",
-                label: "Arts & Expression",
+                label: "Arts",
                 icon: '<img src="assets/images/Bouton_1_Competences.png" alt="Arts">',
                 skills: [
                     { name: "Peinture", value: 12, icon: "🖌️" },
@@ -397,7 +386,7 @@
             },
             {
                 id: "connaissances",
-                label: "Connaissances & Langues",
+                label: "Connaissances",
                 icon: '<img src="assets/images/Bouton_2_Competences.png" alt="Connaissances">',
                 skills: [
                     { name: "Histoire", value: 9, icon: "📜" },
@@ -409,7 +398,7 @@
             },
             {
                 id: "combat",
-                label: "Combat & Défense",
+                label: "Combat",
                 icon: '<img src="assets/images/Bouton_3_Competences.png" alt="Combat">',
                 skills: [
                     { name: "Maniement des armes", value: 13, icon: "🗡️" },
@@ -421,7 +410,7 @@
             },
             {
                 id: "pouvoirs",
-                label: "Pouvoirs & Alice | Arme & Meister",
+                label: "Pouvoirs",
                 icon: '<img src="assets/images/Bouton_4_Competences.png" alt="Pouvoirs">',
                 skills: [
                     { name: "Contrôle d'Alice", value: 15, icon: "🌟" },
@@ -433,7 +422,7 @@
             },
             {
                 id: "social",
-                label: "Compétences Sociales",
+                label: "Social",
                 icon: '<img src="assets/images/Bouton_5_Competences.png" alt="Social">',
                 skills: [
                     { name: "Persuasion", value: 10, icon: "🎯" },
@@ -445,7 +434,7 @@
             },
             {
                 id: "artisanat",
-                label: "Artisanat & Métier",
+                label: "Artisanat",
                 icon: '<img src="assets/images/Bouton_6_Competences.png" alt="Artisanat">',
                 skills: [
                     { name: "Forge & Métallurgie", value: 6, icon: "⚒️" },
@@ -457,7 +446,7 @@
             },
             {
                 id: "nature",
-                label: "Nature & Survie",
+                label: "Nature",
                 icon: '<img src="assets/images/Bouton_7_Competences.png" alt="Nature">',
                 skills: [
                     { name: "Orientation", value: 7, icon: "🧭" },
@@ -481,7 +470,7 @@
             },
             {
                 id: "reputation",
-                label: "Réputation & Marché",
+                label: "Réputation",
                 icon: '<img src="assets/images/Bouton_9_Competences.png" alt="Réputation">',
                 skills: [
                     { name: "Renommée", value: 6, icon: "⭐" },
