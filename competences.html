@@ -87,32 +87,14 @@
         .skills-tab-circle {
             width: 46px;
             height: 46px;
-            border-radius: 50%;
-            border: 2px solid #c4ccd8;
-            background: radial-gradient(circle at 30% 20%, #ffffff 0, #e0e4ec 40%, #c8cedc 100%);
-            box-shadow:
-                inset 0 0 4px rgba(255, 255, 255, 0.7),
-                0 2px 4px rgba(0, 0, 0, 0.25);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--color-gray-600);
-            transition:
-                border-color 0.18s ease,
-                box-shadow 0.18s ease,
-                transform 0.15s ease,
-                background 0.18s ease;
-            background-size: cover;
-            background-position: center;
+            display: block;
         }
 
         .skills-tab-circle img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
+            object-fit: contain;
+            display: block;
         }
 
         .skills-tab-label {
@@ -414,7 +396,7 @@
             {
                 id: "connaissances",
                 label: "Connaissances & Langues",
-                icon: "📚",
+                icon: "",
                 skills: [
                     { name: "Histoire", value: 9, icon: "📜" },
                     { name: "Arcane & Théorie", value: 7, icon: "🔮" },
@@ -426,7 +408,7 @@
             {
                 id: "combat",
                 label: "Combat & Défense",
-                icon: "⚔️",
+                icon: "",
                 skills: [
                     { name: "Maniement des armes", value: 13, icon: "🗡️" },
                     { name: "Parade", value: 7, icon: "🛡️" },
@@ -438,7 +420,7 @@
             {
                 id: "pouvoirs",
                 label: "Pouvoirs & Alice | Arme & Meister",
-                icon: "✨",
+                icon: "",
                 skills: [
                     { name: "Contrôle d'Alice", value: 15, icon: "🌟" },
                     { name: "Synchronisation Meister", value: 9, icon: "🔗" },
@@ -450,7 +432,7 @@
             {
                 id: "social",
                 label: "Compétences Sociales",
-                icon: "💬",
+                icon: "",
                 skills: [
                     { name: "Persuasion", value: 10, icon: "🎯" },
                     { name: "Intimidation", value: 6, icon: "😠" },
@@ -462,7 +444,7 @@
             {
                 id: "artisanat",
                 label: "Artisanat & Métier",
-                icon: "🔨",
+                icon: "",
                 skills: [
                     { name: "Forge & Métallurgie", value: 6, icon: "⚒️" },
                     { name: "Alchimie", value: 8, icon: "⚗️" },
@@ -474,7 +456,7 @@
             {
                 id: "nature",
                 label: "Nature & Survie",
-                icon: "🌲",
+                icon: "",
                 skills: [
                     { name: "Orientation", value: 7, icon: "🧭" },
                     { name: "Pistage", value: 6, icon: "👣" },
@@ -486,7 +468,7 @@
             {
                 id: "physique",
                 label: "Physique",
-                icon: "💪",
+                icon: "",
                 skills: [
                     { name: "Force brute", value: 10, icon: "🏋️" },
                     { name: "Agilité", value: 11, icon: "🤸" },
@@ -498,7 +480,7 @@
             {
                 id: "reputation",
                 label: "Réputation & Marché",
-                icon: "👑",
+                icon: "",
                 skills: [
                     { name: "Renommée", value: 6, icon: "⭐" },
                     { name: "Contacts", value: 8, icon: "📞" },
