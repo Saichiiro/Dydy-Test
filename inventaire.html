@@ -8,11 +8,11 @@
 </head>
 <body>
     <!-- Main inventory wrapper -->
-    <div class="inventory-wrapper">
+    <main class="inventory-wrapper" aria-labelledby="inventoryTitle">
         <!-- Header with title and back button -->
         <div class="inventory-header">
             <a href="index.html" class="back-link" title="Retour à la liste">←</a>
-            <h1 class="inventory-title">Inventaire</h1>
+            <h1 class="inventory-title" id="inventoryTitle">Inventaire</h1>
             <div class="inventory-actions">
                 <span id="itemCount" class="inventory-info">0 objets</span>
                 <button class="add-item-btn" id="openAddPanel" title="Ajouter un objet">
@@ -23,7 +23,7 @@
         </div>
 
         <!-- Category filter bar -->
-        <div class="inventory-categories">
+        <nav class="inventory-categories" aria-label="Catégories d'inventaire">
             <button class="category-btn active" data-category="all">
                 <span class="category-icon">📦</span>
                 <span class="category-label">Tous</span>
@@ -40,7 +40,7 @@
                 <span class="category-icon">🌾</span>
                 <span class="category-label">Agricole</span>
             </button>
-        </div>
+        </nav>
 
         <!-- Main content area: grid + details -->
         <div class="inventory-content">
@@ -65,7 +65,7 @@
                 <!-- Details will be rendered here when item is selected -->
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- Add item panel (slide-in from right) -->
     <div class="add-panel" id="addPanel">

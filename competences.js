@@ -1,4 +1,5 @@
 (function () {
+    // Compatibilité : navigateurs modernes uniquement (ES2015+), sans polyfills ni transpilation.
     const skillsTabsContainer = document.getElementById("skillsTabs");
     const skillsTitleEl = document.getElementById("skillsCategoryTitle");
     const skillsListEl = document.getElementById("skillsList");
@@ -78,7 +79,12 @@
     }
 
     function setCurrentCategoryPoints(value) {
-        skillsState.pointsByCategory[skillsState.activeCategoryId] = Math.max(0, value);
+        const numeric = Number.isFinite(value) ? value : parseInt(String(value), 10);
+        const clamped = Math.max(0, Math.min(Number.isFinite(numeric) ? numeric : 0, 99));
+        skillsState.pointsByCategory[skillsState.activeCategoryId] = clamped;
+        if (skillsPointsValueEl) {
+            skillsPointsValueEl.value = String(clamped);
+        }
         saveToStorage(skillsStorageKey, skillsState.pointsByCategory);
     }
 
@@ -287,7 +293,9 @@
     // -----------------------------------------------------------------
     function updateSkillsPointsDisplay() {
         const currentPoints = getCurrentCategoryPoints();
-        skillsPointsValueEl.textContent = currentPoints;
+        if (skillsPointsValueEl) {
+            skillsPointsValueEl.value = String(currentPoints);
+        }
         const hasPoints = currentPoints > 0;
         const isLocked = skillsState.locksByCategory[skillsState.activeCategoryId];
 
@@ -325,6 +333,31 @@
             updateSkillsPointsDisplay();
         }
     });
+
+    if (skillsPointsValueEl) {
+        skillsPointsValueEl.addEventListener("change", () => {
+            if (!skillsState.isAdmin) {
+                // Reset to state if non-admin tries to edit
+                skillsPointsValueEl.value = String(getCurrentCategoryPoints());
+                return;
+            }
+
+            const raw = skillsPointsValueEl.value.trim();
+            const parsed = parseInt(raw, 10);
+            if (Number.isNaN(parsed)) {
+                skillsPointsValueEl.value = String(getCurrentCategoryPoints());
+                return;
+            }
+
+            setCurrentCategoryPoints(parsed);
+            updateSkillsPointsDisplay();
+        });
+
+        skillsPointsValueEl.addEventListener("blur", () => {
+            // Keep display in sync even if user leaves empty
+            skillsPointsValueEl.value = String(getCurrentCategoryPoints());
+        });
+    }
 
     skillsPointsResetEl.addEventListener("click", () => {
         if (skillsState.locksByCategory[skillsState.activeCategoryId]) return;

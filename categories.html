@@ -102,16 +102,16 @@
     </style>
 </head>
 <body>
-    <div class="categories-wrapper">
+    <main class="categories-wrapper" aria-labelledby="categoriesTitle">
         <div class="categories-header">
-            <h1 class="categories-title">Objets d'Astoria</h1>
+            <h1 class="categories-title" id="categoriesTitle">Objets d'Astoria</h1>
             <p class="categories-subtitle">
                 Explorez les différentes catégories d'objets disponibles dans l'univers d'Astoria.
             </p>
         </div>
 
-        <div class="categories-grid" id="categoriesGrid"></div>
-    </div>
+        <nav class="categories-grid" id="categoriesGrid" aria-label="Catégories d'objets"></nav>
+    </main>
 
     <script src="data.js"></script>
     <script>

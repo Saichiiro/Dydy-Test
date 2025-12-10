@@ -167,6 +167,18 @@
             border-bottom: 2px solid #c7ccd6;
         }
 
+        .skills-panel-heading {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
+        }
+
+        .skills-panel-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
         .skills-panel-title {
             margin: 0;
             font-size: var(--text-xl);
@@ -195,7 +207,8 @@
         }
 
         .skills-points-value {
-            min-width: 26px;
+            min-width: 32px;
+            max-width: 40px;
             padding: 3px 6px;
             text-align: center;
             border-radius: var(--radius-sm);
@@ -205,6 +218,13 @@
             box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.55);
             font-variant-numeric: tabular-nums;
             font-size: var(--text-xs);
+            -moz-appearance: textfield;
+        }
+
+        .skills-points-value::-webkit-outer-spin-button,
+        .skills-points-value::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
 
         .skills-points-btn {
@@ -448,14 +468,19 @@
             .skills-points-box {
                 align-self: flex-end;
             }
+
+            .skills-panel-controls {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="skills-page">
+    <main class="skills-page" aria-labelledby="skillsPageTitle">
         <header class="skills-header">
-            <h1 class="skills-title">Feuille de compétences</h1>
+            <h1 class="skills-title" id="skillsPageTitle">Feuille de compétences</h1>
             <a href="categories.html" class="skills-back-link">← Retour</a>
         </header>
 
@@ -466,22 +491,36 @@
             </aside>
 
             <!-- Panneau de droite -->
-            <main class="skills-panel" aria-live="polite">
+            <section class="skills-panel" aria-live="polite">
                 <div class="skills-panel-header">
-                    <h2 class="skills-panel-title" id="skillsCategoryTitle">Catégorie</h2>
+                    <div class="skills-panel-heading">
+                        <h2 class="skills-panel-title" id="skillsCategoryTitle">Catégorie</h2>
+                    </div>
 
-                    <div class="skills-points-box" aria-label="Points à répartir" role="status" aria-live="polite">
-                        <span class="skills-points-label">Points à répartir :</span>
-                        <button type="button" class="skills-points-btn" id="skillsPointsMinus" aria-label="Retirer un point">
-                            −
-                        </button>
-                        <span class="skills-points-value" id="skillsPointsValue">0</span>
-                        <button type="button" class="skills-points-btn" id="skillsPointsPlus" aria-label="Ajouter un point">
-                            +
-                        </button>
-                        <button type="button" class="skills-points-btn" id="skillsPointsReset" aria-label="Réinitialiser les points de la catégorie">
-                            ↺
-                        </button>
+                    <div class="skills-panel-controls">
+                        <div class="skills-points-box" aria-label="Points à répartir" role="status" aria-live="polite">
+                            <span class="skills-points-label">Points à répartir :</span>
+                            <button type="button" class="skills-points-btn" id="skillsPointsMinus" aria-label="Retirer un point">
+                                −
+                            </button>
+                            <input
+                                type="number"
+                                class="skills-points-value"
+                                id="skillsPointsValue"
+                                value="0"
+                                min="0"
+                                max="99"
+                                inputmode="numeric"
+                                aria-label="Nombre de points à répartir pour cette catégorie"
+                            >
+                            <button type="button" class="skills-points-btn" id="skillsPointsPlus" aria-label="Ajouter un point">
+                                +
+                            </button>
+                            <button type="button" class="skills-points-btn" id="skillsPointsReset" aria-label="Réinitialiser les points de la catégorie">
+                                ↺
+                            </button>
+                        </div>
+                        <button type="button" class="skills-confirm-btn" id="skillsConfirmBtn">Valider mes points</button>
                     </div>
                 </div>
 
@@ -489,13 +528,10 @@
                     <!-- Lignes de compétences injectées par JavaScript -->
                 </ul>
 
-                <div class="skills-actions">
-                    <button type="button" class="skills-confirm-btn" id="skillsConfirmBtn">Valider mes points</button>
-                    <div class="skills-validation" id="skillsValidationFeedback" role="status" aria-live="polite"></div>
-                </div>
-            </main>
+                <div class="skills-validation" id="skillsValidationFeedback" role="status" aria-live="polite"></div>
+            </section>
         </section>
-    </div>
+    </main>
 
     <script src="data.js" defer></script>
     <script src="competences.js" defer></script>

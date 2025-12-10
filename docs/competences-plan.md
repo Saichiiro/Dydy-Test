@@ -3,14 +3,14 @@
 ## État d'avancement rapide
 - ✅ P4 — Conserver la structure existante (aucun nouveau dossier créé) et rester KISS.
 - ✅ P4 — Extraire les données `skillsCategories` vers `data.js` et la logique JS vers `competences.js` avec `<script defer>`.
-- ⬜ P4 — Ajouter `<main>` + conteneur `role="navigation"` harmonisés sur toutes les pages.
+- ✅ P4 — Ajouter `<main>` + conteneur `role="navigation"` harmonisés sur toutes les pages.
 - ✅ P1 — Externaliser le bloc `<script>` de `competences.html` vers `competences.js`.
 - ✅ P1 — Accessibilité/clavier : rôles tablist/tab, aria-selected, navigation fléchée, aria-live sur le compteur.
 - ✅ P1 — États de chargement/erreur minimalistes (placeholder "Chargement..." et fallback vide).
 - ✅ P1 — Points à répartir : règles admin/joueur, +/− par compétence selon compteur, bouton de validation/lock.
 - ✅ P1 — Persistance simple par onglet + bouton de réinitialisation dédié (localStorage, reset) sans sur-ingénierie.
 - ✅ P3 — Lien de retour vers `categories.html` et nettoyage DOM (icônes non inline, escapeHtml si nécessaire).
-- ⬜ P5 — Rappel navigateurs modernes uniquement (pas encore rappelé dans le code).
+- ✅ P5 — Rappel navigateurs modernes uniquement (ajouté dans le code).
 - ⬜ P2 — Nice-to-have (micro-interactions, recherche live, etc.) volontairement non traités.
 
 ## Rappel de priorisation

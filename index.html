@@ -7,10 +7,12 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="wrapper">
+    <main class="wrapper" aria-labelledby="pageTitle">
         <div class="top-bar">
             <!-- Lien retour aux catégories -->
-            <a href="categories.html" style="text-decoration: none; color: var(--color-primary); font-size: var(--text-lg);" title="Retour aux catégories">←</a>
+            <nav aria-label="Navigation principale" class="top-nav">
+                <a href="categories.html" style="text-decoration: none; color: var(--color-primary); font-size: var(--text-lg);" title="Retour aux catégories">←</a>
+            </nav>
 
             <h1 class="title" id="pageTitle">Liste d'objets</h1>
             <span class="stats-badge" id="statsBadge">0 objet</span>
@@ -61,7 +63,7 @@
                 <tbody id="tableBody"></tbody>
             </table>
         </div>
-    </div>
+    </main>
 
     <!-- Modal pour voir un item en grand / détails -->
     <div id="itemModal" class="modal" onclick="closeItemModal()">
