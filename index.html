@@ -13,6 +13,7 @@
             <a href="categories.html" style="text-decoration: none; color: var(--color-primary); font-size: var(--text-lg);" title="Retour aux catégories">←</a>
 
             <h1 class="title" id="pageTitle">Liste d'objets</h1>
+            <span class="stats-badge" id="statsBadge">0 objet</span>
 
             <!-- Dropdown catégories -->
             <select id="categoryFilter" class="category-dropdown" onchange="filterByCategory()">
@@ -28,6 +29,8 @@
                     id="searchInput"
                     placeholder="Rechercher un objet..."
                     onkeyup="filterTable()"
+                    onfocus="showRecentSearches()"
+                    onblur="hideRecentSearches()"
                 >
                 <button
                     id="clearSearchBtn"
@@ -37,17 +40,20 @@
                 >
                     ×
                 </button>
+                <div class="recent-searches-dropdown" id="recentSearchesDropdown"></div>
             </div>
         </div>
+
+        <div class="filter-chips" id="filterChips"></div>
 
         <div class="table-container">
             <table id="inventoryTable">
                 <thead>
                     <tr>
                         <th>Illustration</th>
-                        <th>Nom</th>
+                        <th class="sortable" onclick="sortTable('name')">Nom <span class="sort-indicator"></span></th>
                         <th>Description</th>
-                        <th>Commerce</th>
+                        <th class="sortable" onclick="sortTable('price')">Commerce <span class="sort-indicator"></span></th>
                         <th>Effet (consommation)</th>
                         <th>Action</th>
                     </tr>
@@ -148,6 +154,17 @@
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;");
+        }
+
+        function highlightText(text, query) {
+            if (!query || !text) return escapeHtml(text);
+
+            const escaped = escapeHtml(text);
+            const escapedQuery = escapeHtml(query);
+
+            // Create case-insensitive regex
+            const regex = new RegExp(`(${escapedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return escaped.replace(regex, '<mark class="search-highlight">$1</mark>');
         }
 
         function escapeForAttribute(str) {
@@ -288,7 +305,7 @@
             return plain.slice(0, 80) + (plain.length > 80 ? "…" : "");
         }
 
-        function buildRow(item, index) {
+        function buildRow(item, index, searchQuery) {
             const name = item.name || item.nom || "";
             const description = item.description || item.desc || "";
             const effect = item.effect || item.effet || "";
@@ -305,17 +322,24 @@
                 (priceText ? ` (${priceText})` : "") +
                 (effect ? ` | Effet : ${effect}` : "");
 
+            // Apply highlighting if search query exists
+            const highlightedName = searchQuery ? highlightText(name, searchQuery) : escapeHtml(name);
+            const highlightedDesc = searchQuery ? highlightText(description, searchQuery) : escapeHtml(description);
+            const highlightedEffect = searchQuery ? highlightText(effectSummary, searchQuery) : escapeHtml(effectSummary);
+            const highlightedBuyLine = searchQuery ? highlightText(buyLine, searchQuery) : escapeHtml(buyLine);
+            const highlightedSellLine = searchQuery ? highlightText(sellLine, searchQuery) : escapeHtml(sellLine);
+
             const rowHtml = `
                 <tr class="item-row" data-index="${index}">
                     <td class="img-cell">
                         <img src="${escapeHtml(images.primary)}" alt="${escapeHtml(name || "Illustration")}" onclick="openItemModal(${index})">
                     </td>
                     <td class="name-cell" onclick="openItemModal(${index})">
-                        ${escapeHtml(name)}
+                        ${highlightedName}
                     </td>
                     <td class="desc-cell">
                         <div class="desc-container">
-                            <span class="desc-text">${escapeHtml(description)}</span>
+                            <span class="desc-text">${highlightedDesc}</span>
                             <button class="more-link" onclick="openItemModal(${index}); return false;">Plus</button>
                             <div class="tooltip-box tooltip">
                                 <span class="tooltip-title">${escapeHtml(name)}</span>
@@ -325,10 +349,10 @@
                         </div>
                     </td>
                     <td class="price-cell commerce-cell">
-                        <span class="commerce-line">${escapeHtml(buyLine)}</span>
-                        <span class="commerce-line">${escapeHtml(sellLine)}</span>
+                        <span class="commerce-line">${highlightedBuyLine}</span>
+                        <span class="commerce-line">${highlightedSellLine}</span>
                     </td>
-                    <td class="effect-cell">${escapeHtml(effectSummary)}</td>
+                    <td class="effect-cell">${highlightedEffect}</td>
                     <td class="action-cell">
                         <button
                             class="copy-btn"
@@ -404,9 +428,16 @@
         }
 
         // Construction du tableau
-        function loadTable(data) {
+        function loadTable(data, searchQuery) {
             currentData = data.slice();
             tableBody.innerHTML = "";
+
+            // Update stats badge
+            const badge = document.getElementById('statsBadge');
+            if (badge) {
+                const count = data.length;
+                badge.textContent = `${count} objet${count > 1 ? 's' : ''}`;
+            }
 
             if (data.length === 0) {
                 // Empty state
@@ -425,7 +456,7 @@
             }
 
             data.forEach((item, index) => {
-                tableBody.insertAdjacentHTML("beforeend", buildRow(item, index));
+                tableBody.insertAdjacentHTML("beforeend", buildRow(item, index, searchQuery));
             });
             setupTooltipHandlers();
         }
@@ -434,6 +465,14 @@
         function openItemModal(index) {
             const item = currentData[index];
             if (!item) return;
+
+            // Highlight clicked row briefly
+            const rows = document.querySelectorAll('.item-row');
+            rows.forEach(row => row.classList.remove('row-selected'));
+            const clickedRow = document.querySelector(`.item-row[data-index="${index}"]`);
+            if (clickedRow) {
+                clickedRow.classList.add('row-selected');
+            }
 
             const name = item.name || item.nom || "";
             const description = item.description || item.desc || "";
@@ -465,9 +504,11 @@
 
         function closeItemModal() {
             modal.classList.remove("open");
+            // Remove row highlight when modal closes
+            document.querySelectorAll('.item-row').forEach(row => row.classList.remove('row-selected'));
         }
 
-        // Keyboard shortcuts: ESC to close modal, arrows for carousel
+        // Keyboard shortcuts: ESC to close modal or clear search, Enter to focus search, arrows for carousel
         document.addEventListener("keydown", (e) => {
             if (modal.classList.contains("open")) {
                 if (e.key === "Escape") {
@@ -478,6 +519,21 @@
                 } else if (e.key === "ArrowRight") {
                     e.preventDefault();
                     setCarouselIndex(currentCarouselIndex + 1);
+                }
+            } else if (e.key === "Escape") {
+                // If search is focused, clear it and blur
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput && document.activeElement === searchInput) {
+                    searchInput.value = '';
+                    searchInput.blur();
+                    applyFilters();
+                }
+            } else if (e.key === "Enter") {
+                // Focus search on Enter (if not already focused)
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput && document.activeElement !== searchInput) {
+                    e.preventDefault();
+                    searchInput.focus();
                 }
             }
         });
@@ -514,6 +570,10 @@
 
         // Filtrage dynamique par catégorie
         let currentCategory = '';
+        let searchDebounceTimer;
+        let currentSortColumn = null;
+        let currentSortDirection = 'asc';
+        const MAX_RECENT_SEARCHES = 3;
 
         function filterByCategory() {
             const select = document.getElementById('categoryFilter');
@@ -530,11 +590,48 @@
 
             // Application du filtre
             applyFilters();
+            updateFilterChips();
         }
 
-        // Combine recherche + catégorie
+        function updateFilterChips() {
+            const chipsContainer = document.getElementById('filterChips');
+            if (!chipsContainer) return;
+
+            chipsContainer.innerHTML = '';
+
+            if (currentCategory) {
+                const categoryNames = {
+                    'equipement': '⚔️ Équipements',
+                    'consommable': '🧪 Consommables',
+                    'agricole': '🌾 Agricole'
+                };
+
+                const chip = document.createElement('div');
+                chip.className = 'filter-chip';
+                chip.innerHTML = `
+                    <span>${categoryNames[currentCategory]}</span>
+                    <button onclick="clearCategoryFilter()" class="chip-remove">×</button>
+                `;
+                chipsContainer.appendChild(chip);
+            }
+        }
+
+        function clearCategoryFilter() {
+            document.getElementById('categoryFilter').value = '';
+            currentCategory = '';
+            document.getElementById('pageTitle').textContent = 'Liste d\'objets';
+            applyFilters();
+            updateFilterChips();
+        }
+
+        // Combine recherche + catégorie + tri
         function applyFilters() {
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+
+            // Save to recent searches if there's a query
+            if (searchQuery.length >= 2) {
+                saveRecentSearch(searchQuery);
+            }
 
             let filtered = allItems;
 
@@ -560,7 +657,27 @@
                 });
             }
 
-            loadTable(filtered);
+            // Tri
+            if (currentSortColumn) {
+                filtered.sort((a, b) => {
+                    let aVal, bVal;
+
+                    if (currentSortColumn === 'name') {
+                        aVal = (a.name || '').toLowerCase();
+                        bVal = (b.name || '').toLowerCase();
+                    } else if (currentSortColumn === 'price') {
+                        // Sort by sell price, fallback to buy price
+                        aVal = parseInt((a.sellPrice || a.buyPrice || '0').replace(/\D/g, '')) || 0;
+                        bVal = parseInt((b.sellPrice || b.buyPrice || '0').replace(/\D/g, '')) || 0;
+                    }
+
+                    if (aVal < bVal) return currentSortDirection === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return currentSortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            loadTable(filtered, searchQuery);
 
             // Afficher/masquer le bouton clear
             const clearBtn = document.getElementById('clearSearchBtn');
@@ -569,15 +686,109 @@
             }
         }
 
-        // Recherche live
+        // Recherche live avec debounce
         function filterTable() {
-            applyFilters();
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                applyFilters();
+            }, 100);
         }
 
         function clearSearch() {
             document.getElementById('searchInput').value = '';
             applyFilters();
             document.getElementById('searchInput').focus();
+        }
+
+        // Recent searches localStorage management
+        function getRecentSearches() {
+            try {
+                const searches = localStorage.getItem('astoriaRecentSearches');
+                return searches ? JSON.parse(searches) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveRecentSearch(query) {
+            if (!query || query.length < 2) return;
+
+            try {
+                let searches = getRecentSearches();
+                // Remove if already exists
+                searches = searches.filter(s => s !== query);
+                // Add to beginning
+                searches.unshift(query);
+                // Keep only MAX_RECENT_SEARCHES
+                searches = searches.slice(0, MAX_RECENT_SEARCHES);
+                localStorage.setItem('astoriaRecentSearches', JSON.stringify(searches));
+            } catch (e) {
+                // localStorage might be disabled
+            }
+        }
+
+        function applyRecentSearch(query) {
+            document.getElementById('searchInput').value = query;
+            applyFilters();
+        }
+
+        function showRecentSearches() {
+            const searches = getRecentSearches();
+            const dropdown = document.getElementById('recentSearchesDropdown');
+
+            if (!dropdown || searches.length === 0) return;
+
+            dropdown.innerHTML = '';
+            searches.forEach(query => {
+                const item = document.createElement('div');
+                item.className = 'recent-search-item';
+                item.textContent = query;
+                item.onmousedown = (e) => {
+                    e.preventDefault(); // Prevent blur event
+                    applyRecentSearch(query);
+                };
+                dropdown.appendChild(item);
+            });
+
+            dropdown.style.display = 'block';
+        }
+
+        function hideRecentSearches() {
+            setTimeout(() => {
+                const dropdown = document.getElementById('recentSearchesDropdown');
+                if (dropdown) {
+                    dropdown.style.display = 'none';
+                }
+            }, 200);
+        }
+
+        // Sort table by column
+        function sortTable(column) {
+            if (currentSortColumn === column) {
+                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortColumn = column;
+                currentSortDirection = 'asc';
+            }
+
+            applyFilters();
+            updateSortIndicators();
+        }
+
+        function updateSortIndicators() {
+            document.querySelectorAll('.sort-indicator').forEach(indicator => {
+                indicator.textContent = '';
+                indicator.classList.remove('active');
+            });
+
+            if (currentSortColumn) {
+                const header = document.querySelector(`th[onclick="sortTable('${currentSortColumn}')"]`);
+                if (header) {
+                    const indicator = header.querySelector('.sort-indicator');
+                    indicator.textContent = currentSortDirection === 'asc' ? '▲' : '▼';
+                    indicator.classList.add('active');
+                }
+            }
         }
 
         // Initialisation depuis URL (si vient de categories.html)
