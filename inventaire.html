@@ -128,6 +128,30 @@
         </div>
     </div>
 
+    <!-- Delete confirmation modal -->
+    <div class="delete-modal-overlay" id="deleteModal">
+        <div class="delete-modal">
+            <div class="delete-modal-header">
+                <h3>Supprimer l'objet</h3>
+            </div>
+            <div class="delete-modal-body">
+                <p>Combien d'unités de <span class="delete-modal-item-name" id="deleteItemName"></span> voulez-vous supprimer ?</p>
+                <div class="form-group">
+                    <label for="deleteQuantityInput">Quantité à supprimer</label>
+                    <div class="quantity-control">
+                        <button type="button" class="qty-btn" id="deleteQtyMinus">−</button>
+                        <input type="number" id="deleteQuantityInput" min="1" value="1">
+                        <button type="button" class="qty-btn" id="deleteQtyPlus">+</button>
+                    </div>
+                </div>
+            </div>
+            <div class="delete-modal-footer">
+                <button type="button" class="btn-secondary" id="cancelDelete">Annuler</button>
+                <button type="button" class="btn-danger" id="confirmDelete">Supprimer</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Load shared data -->
     <script src="image-helpers.js"></script>
     <script src="data.js"></script>
@@ -158,7 +182,7 @@
         // =================================================================
         /**
          * IMAGE CONFIGURATION & PLACEHOLDER
-         * D�l�g�s au helper global image-helpers.js
+         * D�l�g�s au helper global image-helpers.js
          */
         const INVENTORY_IMAGE_HELPERS = window.astoriaImageHelpers || {};
         const PLACEHOLDER_IMAGE = INVENTORY_IMAGE_HELPERS.smallPlaceholder;
@@ -660,8 +684,25 @@
 
             detailPanel.innerHTML = `
                 <div class="detail-header">
-                    <h2 class="detail-title">${escapeHtml(item.name)}</h2>
-                    <span class="detail-category">${categoryLabels[item.category] || 'Autre'}</span>
+                    <div class="detail-title-wrapper">
+                        <h2 class="detail-title">${escapeHtml(item.name)}</h2>
+                        <span class="detail-category">${categoryLabels[item.category] || 'Autre'}</span>
+                    </div>
+                    <div class="detail-actions">
+                        <button class="item-action-use"
+                                onclick="useItem(${item.id})"
+                                title="Utiliser l'objet"
+                                ${item.quantity < 1 ? 'disabled' : ''}
+                                aria-label="Utiliser l'objet">
+                            ✓
+                        </button>
+                        <button class="item-action-delete"
+                                onclick="openDeleteModal(${item.id})"
+                                title="Supprimer l'objet"
+                                aria-label="Supprimer l'objet">
+                            🗑
+                        </button>
+                    </div>
                 </div>
                 <div class="detail-image">
                     <img src="${escapeHtml(imageSrc)}"
@@ -689,9 +730,6 @@
                         <p class="detail-text">×${item.quantity}</p>
                     </div>
                     ` : ''}
-                    <div class="detail-section" style="margin-top: var(--space-6);">
-                        <button class="btn-delete" onclick="deleteItem(${item.id})">Supprimer l'objet</button>
-                    </div>
                 </div>
             `;
         }
@@ -709,7 +747,180 @@
         }
 
         // =================================================================
-        // ITEM DELETION
+        // ITEM ACTIONS (USE & DELETE)
+        // =================================================================
+
+        // Delete modal elements
+        const deleteModal = document.getElementById('deleteModal');
+        const deleteItemNameEl = document.getElementById('deleteItemName');
+        const deleteQuantityInput = document.getElementById('deleteQuantityInput');
+        const deleteQtyMinusBtn = document.getElementById('deleteQtyMinus');
+        const deleteQtyPlusBtn = document.getElementById('deleteQtyPlus');
+        const cancelDeleteBtn = document.getElementById('cancelDelete');
+        const confirmDeleteBtn = document.getElementById('confirmDelete');
+
+        let currentDeleteItemId = null;
+        let currentDeleteItemMaxQty = 0;
+
+        /**
+         * Use an item - decreases quantity by 1
+         * - Finds item by ID
+         * - Decreases quantity by 1
+         * - If quantity reaches 0, removes item
+         * - Saves to localStorage
+         * - Re-renders grid and details
+         */
+        function useItem(itemId) {
+            const itemIndex = inventoryItems.findIndex(i => i.id === itemId);
+            if (itemIndex === -1) return;
+
+            const item = inventoryItems[itemIndex];
+
+            if (item.quantity < 1) {
+                alert('Quantité insuffisante pour utiliser cet objet');
+                return;
+            }
+
+            // Decrease quantity
+            item.quantity -= 1;
+
+            console.log(`Used ${item.name}. Quantity now: ${item.quantity}`);
+
+            // If quantity reaches 0, remove item
+            if (item.quantity <= 0) {
+                inventoryItems.splice(itemIndex, 1);
+                selectedItemIndex = null;
+                showDetailPlaceholder();
+            } else {
+                // Refresh the detail view to update quantity display
+                showItemDetail(item);
+            }
+
+            // Save to localStorage
+            saveToLocalStorage();
+
+            // Re-render grid
+            renderInventory();
+        }
+
+        /**
+         * Open delete confirmation modal
+         * - Sets current item ID
+         * - Shows item name
+         * - Resets quantity input to 1
+         * - Sets max quantity
+         * - Opens modal
+         */
+        function openDeleteModal(itemId) {
+            const item = inventoryItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            currentDeleteItemId = itemId;
+            currentDeleteItemMaxQty = item.quantity;
+
+            // Update modal content
+            deleteItemNameEl.textContent = item.name;
+            deleteQuantityInput.value = 1;
+            deleteQuantityInput.max = item.quantity;
+
+            // Open modal
+            deleteModal.classList.add('open');
+        }
+
+        /**
+         * Close delete modal
+         */
+        function closeDeleteModal() {
+            deleteModal.classList.remove('open');
+            currentDeleteItemId = null;
+            currentDeleteItemMaxQty = 0;
+        }
+
+        /**
+         * Confirm deletion from modal
+         * - Gets quantity to delete
+         * - Updates item quantity or removes item
+         * - Saves to localStorage
+         * - Re-renders grid
+         */
+        function confirmDeletion() {
+            if (!currentDeleteItemId) return;
+
+            const qtyToDelete = parseInt(deleteQuantityInput.value) || 1;
+
+            if (qtyToDelete < 1) {
+                alert('La quantité doit être au moins 1');
+                return;
+            }
+
+            if (qtyToDelete > currentDeleteItemMaxQty) {
+                alert(`La quantité maximum est ${currentDeleteItemMaxQty}`);
+                return;
+            }
+
+            const itemIndex = inventoryItems.findIndex(i => i.id === currentDeleteItemId);
+            if (itemIndex === -1) return;
+
+            const item = inventoryItems[itemIndex];
+
+            // Update quantity or remove item
+            if (qtyToDelete >= item.quantity) {
+                // Remove item entirely
+                inventoryItems.splice(itemIndex, 1);
+                selectedItemIndex = null;
+                showDetailPlaceholder();
+                console.log(`Deleted ${item.name} completely`);
+            } else {
+                // Decrease quantity
+                item.quantity -= qtyToDelete;
+                showItemDetail(item);
+                console.log(`Deleted ${qtyToDelete} of ${item.name}. Remaining: ${item.quantity}`);
+            }
+
+            // Save to localStorage
+            saveToLocalStorage();
+
+            // Close modal and re-render
+            closeDeleteModal();
+            renderInventory();
+        }
+
+        /**
+         * Decrease delete quantity
+         */
+        function decreaseDeleteQuantity() {
+            const current = parseInt(deleteQuantityInput.value) || 1;
+            deleteQuantityInput.value = Math.max(1, current - 1);
+        }
+
+        /**
+         * Increase delete quantity
+         */
+        function increaseDeleteQuantity() {
+            const current = parseInt(deleteQuantityInput.value) || 1;
+            const max = currentDeleteItemMaxQty;
+            deleteQuantityInput.value = Math.min(max, current + 1);
+        }
+
+        // Attach event listeners for delete modal
+        deleteQtyMinusBtn.addEventListener('click', decreaseDeleteQuantity);
+        deleteQtyPlusBtn.addEventListener('click', increaseDeleteQuantity);
+        cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+        confirmDeleteBtn.addEventListener('click', confirmDeletion);
+
+        // Close modal when clicking outside
+        deleteModal.addEventListener('click', (e) => {
+            if (e.target === deleteModal) {
+                closeDeleteModal();
+            }
+        });
+
+        // Make functions globally accessible for onclick handlers
+        window.useItem = useItem;
+        window.openDeleteModal = openDeleteModal;
+
+        // =================================================================
+        // ITEM DELETION (OLD - KEPT FOR COMPATIBILITY)
         // =================================================================
 
         /**
