@@ -413,6 +413,10 @@
     skillsConfirmEl.addEventListener("click", () => {
         const activeCategory = getActiveCategory();
         if (!activeCategory) return;
+
+        // Clear allocations when confirming (points are now committed)
+        clearAllocations(activeCategory.id);
+
         skillsState.locksByCategory[activeCategory.id] = true;
         updateLockState(true);
         renderSkillsCategory(activeCategory);
