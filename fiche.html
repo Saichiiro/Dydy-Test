@@ -232,7 +232,7 @@
                             </label>
                         </div>
 
-                        <div id="alice-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1rem;" hidden>
+                        <div id="alice-container" style="display: none; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1rem;">
                             <div id="alice-fields" class="conditional-block">
                                 <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Alice principale</h3>
                                 <div class="field-group">
@@ -271,7 +271,7 @@
                                 </div>
                             </div>
 
-                            <div id="alice2-fields" class="conditional-block" hidden>
+                            <div id="alice2-fields" class="conditional-block" style="display: none;">
                                 <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Double Alice</h3>
                                 <div class="field-group">
                                     <label class="field-label" for="alice2Nom">Nom de l'Alice</label>
@@ -685,8 +685,8 @@
                 const hasAlice = hasAliceCheckbox.checked;
                 const hasDoubleAlice = hasDoubleAliceCheckbox.checked;
 
-                aliceContainer.hidden = !hasAlice;
-                alice2Fields.hidden = !hasDoubleAlice;
+                aliceContainer.style.display = hasAlice ? 'grid' : 'none';
+                alice2Fields.style.display = hasDoubleAlice ? 'block' : 'none';
             };
 
             hasAliceCheckbox.addEventListener('change', updateAliceVisibility);
