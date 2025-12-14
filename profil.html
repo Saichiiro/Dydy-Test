@@ -367,5 +367,25 @@
         // Initialize on page load
         init();
     </script>
+
+    <script>
+        // ES modules (imports) do not work over file:// in most browsers.
+        // Show a clear hint instead of a silent broken UI.
+        (function () {
+            if (window.location.protocol !== 'file:') return;
+
+            const toggle = document.getElementById('tagToggle');
+            const selected = document.getElementById('selectedTags');
+
+            if (toggle) {
+                toggle.disabled = true;
+                toggle.title = 'Ouvre la page via un serveur local (Live Server) pour activer les tags.';
+            }
+
+            if (selected) {
+                selected.textContent = 'Ouvre la page via Live Server pour activer les tags.';
+            }
+        })();
+    </script>
 </body>
 </html>

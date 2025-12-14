@@ -3170,14 +3170,43 @@ tbody tr.keyboard-selected {
 }
 
 .profile-tags-dropdown {
-    margin-top: var(--space-3);
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: min(420px, calc(100vw - 24px));
     background: var(--color-white);
     border: 2px solid var(--color-primary-light);
     border-radius: var(--radius-lg);
     padding: var(--space-4);
-    max-height: 320px;
+    max-height: min(60vh, 520px);
     overflow: auto;
     box-shadow: var(--shadow-md);
+}
+
+.profile-tags-menu-header {
+    position: sticky;
+    top: 0;
+    background: var(--color-white);
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+.profile-tags-search-input {
+    width: 100%;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-gray-300);
+    padding: var(--space-2) var(--space-3);
+    font-family: var(--font-family);
+    font-size: var(--text-sm-plus);
+    box-sizing: border-box;
+}
+
+.profile-tags-search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
 }
 
 .profile-tags-group {

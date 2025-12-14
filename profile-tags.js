@@ -190,29 +190,101 @@ const TAG_LABEL_BY_ID = TAG_GROUPS.reduce((acc, group) => {
 }, {});
 
 export function initProfileTagSelector({ characterId }) {
+    const PLUS = '+';
+    const MINUS = '\u2212';
+    const CROSS = '\u00d7';
+
     const toggle = document.getElementById('tagToggle');
-    const dropdown = document.getElementById('tagDropdown');
+    const menu = document.getElementById('tagDropdown');
     const selected = document.getElementById('selectedTags');
     const wrapper = document.getElementById('profileTags');
 
-    if (!toggle || !dropdown || !selected || !wrapper) return;
+    if (!toggle || !menu || !selected || !wrapper) return;
+
+    menu.classList.add('profile-tags-menu');
 
     const enabled = !!characterId;
     toggle.disabled = !enabled;
-    toggle.title = enabled ? '' : 'Sélectionnez un personnage pour modifier les tags';
+    toggle.title = enabled ? '' : 'Selectionnez un personnage pour modifier les tags';
 
     let selectedIds = enabled ? loadSelected(characterId) : [];
+    let searchQuery = '';
 
-    const isOpen = () => !dropdown.hidden;
+    const isOpen = () => !menu.hidden;
+
+    function positionMenu() {
+        const padding = 10;
+        const rect = toggle.getBoundingClientRect();
+
+        const menuWidth = menu.offsetWidth || 360;
+        const menuHeight = menu.offsetHeight || 320;
+
+        const preferredLeft = rect.right - menuWidth;
+        const left = Math.min(
+            Math.max(padding, preferredLeft),
+            Math.max(padding, window.innerWidth - menuWidth - padding)
+        );
+
+        const spaceBelow = window.innerHeight - rect.bottom - padding;
+        const openUpwards = spaceBelow < Math.min(260, menuHeight) && rect.top > spaceBelow;
+        const preferredTop = openUpwards ? rect.top - menuHeight - 8 : rect.bottom + 8;
+        const top = Math.min(
+            Math.max(padding, preferredTop),
+            Math.max(padding, window.innerHeight - menuHeight - padding)
+        );
+
+        menu.style.left = `${left}px`;
+        menu.style.top = `${top}px`;
+    }
+
     const setOpen = (open) => {
-        dropdown.hidden = !open;
-        toggle.textContent = open ? '−' : '+';
+        menu.hidden = !open;
+        toggle.textContent = open ? MINUS : PLUS;
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+        if (open) {
+            menu.style.visibility = 'hidden';
+            requestAnimationFrame(() => {
+                positionMenu();
+                menu.style.visibility = 'visible';
+                const search = menu.querySelector('.profile-tags-search-input');
+                if (search) search.focus();
+            });
+        } else {
+            menu.style.left = '';
+            menu.style.top = '';
+            menu.style.visibility = '';
+            searchQuery = '';
+        }
     };
 
-    function renderDropdown() {
-        dropdown.innerHTML = '';
+    function renderMenu() {
+        menu.innerHTML = '';
+
+        const header = document.createElement('div');
+        header.className = 'profile-tags-menu-header';
+
+        const search = document.createElement('input');
+        search.className = 'profile-tags-search-input';
+        search.type = 'text';
+        search.placeholder = 'Rechercher...';
+        search.autocomplete = 'off';
+        search.value = searchQuery;
+        search.addEventListener('input', () => {
+            searchQuery = search.value;
+            renderMenu();
+        });
+
+        header.appendChild(search);
+        menu.appendChild(header);
+
+        const query = searchQuery.trim().toLowerCase();
+        const matches = (text) => (query ? String(text || '').toLowerCase().includes(query) : true);
+
         for (const group of TAG_GROUPS) {
+            const filteredTags = group.tags.filter((t) => matches(t.label) || matches(group.title));
+            if (query && filteredTags.length === 0) continue;
+
             const groupEl = document.createElement('div');
             groupEl.className = 'profile-tags-group';
 
@@ -222,7 +294,7 @@ export function initProfileTagSelector({ characterId }) {
 
             groupEl.appendChild(title);
 
-            for (const tag of group.tags) {
+            for (const tag of filteredTags) {
                 const labelEl = document.createElement('label');
                 labelEl.className = 'profile-tags-option';
 
@@ -239,7 +311,7 @@ export function initProfileTagSelector({ characterId }) {
                 groupEl.appendChild(labelEl);
             }
 
-            dropdown.appendChild(groupEl);
+            menu.appendChild(groupEl);
         }
     }
 
@@ -248,7 +320,7 @@ export function initProfileTagSelector({ characterId }) {
         if (!selectedIds.length) {
             const hint = document.createElement('span');
             hint.className = 'profile-tags-empty';
-            hint.textContent = enabled ? 'Aucun tag sélectionné.' : '—';
+            hint.textContent = enabled ? 'Aucun tag selectionne.' : '—';
             selected.appendChild(hint);
             return;
         }
@@ -264,12 +336,12 @@ export function initProfileTagSelector({ characterId }) {
             const remove = document.createElement('button');
             remove.type = 'button';
             remove.className = 'profile-tags-badge-remove';
-            remove.textContent = '×';
+            remove.textContent = CROSS;
             remove.title = 'Retirer';
             remove.addEventListener('click', () => {
                 selectedIds = selectedIds.filter((x) => x !== id);
                 saveSelected(characterId, selectedIds);
-                const checkbox = dropdown.querySelector(`input[type="checkbox"][value="${CSS.escape(id)}"]`);
+                const checkbox = menu.querySelector(`input[type="checkbox"][value="${CSS.escape(id)}"]`);
                 if (checkbox) checkbox.checked = false;
                 renderSelected();
             });
@@ -279,8 +351,8 @@ export function initProfileTagSelector({ characterId }) {
         }
     }
 
-    function syncFromDropdown() {
-        const checked = Array.from(dropdown.querySelectorAll('input[type="checkbox"]:checked')).map((i) => i.value);
+    function syncFromMenu() {
+        const checked = Array.from(menu.querySelectorAll('input[type="checkbox"]:checked')).map((i) => i.value);
         selectedIds = checked;
         saveSelected(characterId, selectedIds);
         renderSelected();
@@ -292,16 +364,15 @@ export function initProfileTagSelector({ characterId }) {
         setOpen(!isOpen());
     });
 
-    dropdown.addEventListener('change', (e) => {
+    menu.addEventListener('change', (e) => {
         if (e.target && e.target.matches('input[type="checkbox"]')) {
-            syncFromDropdown();
+            syncFromMenu();
         }
     });
 
-    // Close only on explicit actions (click outside / Escape)
     document.addEventListener('pointerdown', (e) => {
         if (!isOpen()) return;
-        if (!wrapper.contains(e.target)) setOpen(false);
+        if (!wrapper.contains(e.target) && !menu.contains(e.target)) setOpen(false);
     });
 
     document.addEventListener('keydown', (e) => {
@@ -312,7 +383,19 @@ export function initProfileTagSelector({ characterId }) {
         }
     });
 
-    renderDropdown();
+    window.addEventListener('resize', () => {
+        if (isOpen()) positionMenu();
+    });
+
+    window.addEventListener(
+        'scroll',
+        () => {
+            if (isOpen()) positionMenu();
+        },
+        true
+    );
+
+    renderMenu();
     renderSelected();
     setOpen(false);
 }
