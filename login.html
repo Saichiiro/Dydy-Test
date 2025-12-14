@@ -183,7 +183,7 @@
                 <div id="sessionNoticeText"></div>
                 <div class="session-notice-actions">
                     <button type="button" class="session-notice-btn" id="sessionContinue">Continuer</button>
-                    <button type="button" class="session-notice-btn secondary" id="sessionLogout">Se dÇ¸connecter</button>
+                    <button type="button" class="session-notice-btn secondary" id="sessionLogout">Se déconnecter</button>
                 </div>
             </div>
 
@@ -284,8 +284,8 @@
         if (isAuthenticated() && sessionNotice && sessionNoticeText && sessionContinue && sessionLogout) {
             const user = getCurrentUser();
             sessionNoticeText.textContent = user?.username
-                ? `DÇ¸jÇÿ connectÇ¸ en tant que ${user.username}.`
-                : 'DÇ¸jÇÿ connectÇ¸.';
+                ? `Déjà connecté en tant que ${user.username}.`
+                : 'Déjà connecté.';
             sessionNotice.hidden = false;
 
             sessionContinue.addEventListener('click', () => {
