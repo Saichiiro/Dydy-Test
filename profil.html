@@ -67,6 +67,27 @@
             text-transform: uppercase;
         }
 
+        .auth-user-link {
+            appearance: none;
+            background: transparent;
+            border: none;
+            padding: 0.25rem 0.25rem;
+            margin: 0;
+            color: var(--color-gray-700);
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .auth-user-link:hover {
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .auth-user-link:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--color-primary-lighter);
+        }
+
         .profile-not-logged-in {
             text-align: center;
             padding: 4rem 2rem;
@@ -107,6 +128,8 @@
             box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
             padding: 1.25rem;
             border: 2px solid var(--color-primary-lighter);
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
 
         .profile-modal-title {
@@ -129,6 +152,7 @@
             border: 2px solid var(--color-gray-300);
             border-radius: 10px;
             font-size: 1rem;
+            box-sizing: border-box;
         }
 
         .profile-modal-input:focus {
@@ -141,6 +165,7 @@
             gap: 0.75rem;
             justify-content: flex-end;
             margin-top: 1rem;
+            flex-wrap: wrap;
         }
 
         .profile-modal-button {
@@ -152,6 +177,7 @@
             font-weight: 800;
             cursor: pointer;
             transition: all 0.2s;
+            max-width: 100%;
         }
 
         .profile-modal-button:hover {
@@ -336,6 +362,7 @@
         let currentUser = null;
         let currentCharacter = null;
         let userCharacters = [];
+        let userLinkButton = null;
 
         const createBackdrop = document.getElementById('createCharacterBackdrop');
         const createForm = document.getElementById('createCharacterForm');
@@ -348,6 +375,10 @@
 
         function showCreateCharacterModal() {
             if (!currentUser) return;
+            if (Array.isArray(userCharacters) && userCharacters.length >= 5) {
+                alert('Limite de 5 personnages atteinte.');
+                return;
+            }
             createError.classList.remove('visible');
             createError.textContent = '';
             createForm.reset();
@@ -403,6 +434,40 @@
         function renderAuthControls() {
             const roleBadge = isAdmin() ? 'Admin' : 'Joueur';
 
+            // New (DOM-based) header controls: easier to keep stable + clickable username
+            authControls.replaceChildren();
+
+            const badge = document.createElement('span');
+            badge.className = 'user-badge';
+            badge.textContent = roleBadge;
+
+            userLinkButton = document.createElement('button');
+            userLinkButton.type = 'button';
+            userLinkButton.className = 'auth-user-link';
+            userLinkButton.id = 'profileUserBtn';
+            userLinkButton.textContent = currentUser.username;
+            userLinkButton.title = 'Changer de personnage';
+            userLinkButton.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                const selector = document.getElementById('characterSelector');
+                if (selector) {
+                    selector.focus();
+                    try { selector.click(); } catch {}
+                }
+            });
+
+            const logoutButton = document.createElement('button');
+            logoutButton.className = 'auth-button secondary';
+            logoutButton.id = 'logoutBtn';
+            logoutButton.textContent = 'Déconnexion';
+            logoutButton.addEventListener('click', () => {
+                logout();
+                window.location.reload();
+            });
+
+            authControls.append(badge, userLinkButton, logoutButton);
+            return;
+
             authControls.innerHTML = `
                 <span class="user-badge">${roleBadge}</span>
                 <span style="color: var(--color-gray-700); font-weight: 600;">${currentUser.username}</span>
@@ -413,6 +478,12 @@
                 logout();
                 window.location.reload();
             });
+        }
+
+        function updateAuthUserLabel() {
+            if (!userLinkButton) return;
+            const label = (currentCharacter && currentCharacter.name) ? currentCharacter.name : currentUser.username;
+            userLinkButton.textContent = label;
         }
 
         async function loadCharacters() {
@@ -434,14 +505,76 @@
                 // No active character - show placeholder
                 showNoCharacterSelected();
                 initProfileTagSelector({ characterId: null });
+                updateAuthUserLabel();
             } else {
                 // Display character data
                 displayCharacter(currentCharacter);
                 initProfileTagSelector({ characterId: currentCharacter.id });
+                updateAuthUserLabel();
             }
         }
 
         function renderCharacterSelector() {
+            // New selector renderer (updates in place, no full page reload)
+            let selectorEl = document.getElementById('characterSelector');
+            const isNewSelector = !selectorEl;
+
+            if (isNewSelector) {
+                selectorEl = document.createElement('select');
+                selectorEl.className = 'character-selector';
+                selectorEl.id = 'characterSelector';
+                authControls.insertBefore(selectorEl, authControls.firstChild);
+
+                selectorEl.addEventListener('change', async (e) => {
+                    const value = e.target.value;
+
+                    if (value === '__create__') {
+                        selectorEl.value = '';
+                        showCreateCharacterModal();
+                        return;
+                    }
+
+                    if (!value) return;
+
+                    const res = await setActiveCharacter(value);
+                    if (!res || !res.success) return;
+
+                    currentCharacter = getActiveCharacter();
+                    if (currentCharacter) {
+                        displayCharacter(currentCharacter);
+                        initProfileTagSelector({ characterId: currentCharacter.id });
+                    } else {
+                        showNoCharacterSelected();
+                        initProfileTagSelector({ characterId: null });
+                    }
+                    updateAuthUserLabel();
+                });
+            } else {
+                selectorEl.replaceChildren();
+            }
+
+            const placeholderOption = document.createElement('option');
+            placeholderOption.value = '';
+            placeholderOption.textContent = 'Sélectionner un personnage...';
+            placeholderOption.selected = !currentCharacter;
+            selectorEl.appendChild(placeholderOption);
+
+            userCharacters.forEach((char) => {
+                const option = document.createElement('option');
+                option.value = char.id;
+                option.textContent = char.name;
+                if (currentCharacter && char.id === currentCharacter.id) option.selected = true;
+                selectorEl.appendChild(option);
+            });
+
+            if (userCharacters.length < 5) {
+                const createOption = document.createElement('option');
+                createOption.value = '__create__';
+                createOption.textContent = '+ Créer un personnage';
+                selectorEl.appendChild(createOption);
+            }
+
+            return;
             const selectorHTML = document.createElement('select');
             selectorHTML.className = 'character-selector';
             selectorHTML.id = 'characterSelector';
@@ -523,7 +656,6 @@
         }
 
         // Character create modal wiring
-        if (createSubmit) createSubmit.textContent = 'Creer';
 
         createCancel.addEventListener('click', hideCreateCharacterModal);
         createBackdrop.addEventListener('pointerdown', (e) => {
@@ -541,6 +673,11 @@
             createError.classList.remove('visible');
             createError.textContent = '';
 
+            if (Array.isArray(userCharacters) && userCharacters.length >= 5) {
+                showCreateError('Limite de 5 personnages atteinte.');
+                return;
+            }
+
             const name = createName.value.trim();
             const race = createRace.value.trim();
             const charClass = createClass.value.trim();
@@ -552,24 +689,35 @@
             }
 
             createSubmit.disabled = true;
-            createSubmit.textContent = 'Creation...';
+            createSubmit.textContent = 'Création...';
 
             try {
                 const res = await createCharacter(currentUser.id, { name, race, class: charClass });
                 if (!res.success) {
-                    showCreateError(res.error || 'Impossible de creer le personnage.');
+                    showCreateError(res.error || 'Impossible de créer le personnage.');
                     return;
                 }
 
                 await setActiveCharacter(res.character.id);
                 hideCreateCharacterModal();
-                window.location.reload();
+
+                userCharacters = await getUserCharacters(currentUser.id);
+                currentCharacter = getActiveCharacter();
+                renderCharacterSelector();
+                if (currentCharacter) {
+                    displayCharacter(currentCharacter);
+                    initProfileTagSelector({ characterId: currentCharacter.id });
+                } else {
+                    showNoCharacterSelected();
+                    initProfileTagSelector({ characterId: null });
+                }
+                updateAuthUserLabel();
             } catch (err) {
                 console.error(err);
-                showCreateError('Impossible de creer le personnage.');
+                showCreateError('Impossible de créer le personnage.');
             } finally {
                 createSubmit.disabled = false;
-                createSubmit.textContent = 'Creer';
+                createSubmit.textContent = 'Créer';
             }
         });
 

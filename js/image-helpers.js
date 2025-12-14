@@ -1,5 +1,6 @@
 (function () {
     const basePath = "assets/images/";
+    const preloadCache = new Map();
 
     function normalizeName(name) {
         return (name || "")
@@ -72,6 +73,40 @@
         };
     }
 
+    function preloadImage(src) {
+        const url = String(src || "");
+        if (!url) return Promise.resolve(null);
+
+        if (preloadCache.has(url)) return preloadCache.get(url);
+
+        const promise = new Promise((resolve) => {
+            const img = new Image();
+            img.decoding = "async";
+            img.onload = () => resolve(img);
+            img.onerror = () => resolve(null);
+            img.src = url;
+        });
+
+        preloadCache.set(url, promise);
+        return promise;
+    }
+
+    function preloadMany(list, limit = 24) {
+        const uniq = [];
+        const seen = new Set();
+
+        for (const src of list || []) {
+            const url = String(src || "");
+            if (!url) continue;
+            if (seen.has(url)) continue;
+            seen.add(url);
+            uniq.push(url);
+            if (uniq.length >= limit) break;
+        }
+
+        uniq.forEach((url) => preloadImage(url));
+    }
+
     window.astoriaImageHelpers = {
         basePath,
         normalizeName,
@@ -79,7 +114,8 @@
         galleriesByKey,
         largePlaceholder,
         smallPlaceholder,
-        resolveItemImages
+        resolveItemImages,
+        preloadImage,
+        preloadMany
     };
 })();
-

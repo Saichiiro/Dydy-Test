@@ -189,7 +189,14 @@ const TAG_LABEL_BY_ID = TAG_GROUPS.reduce((acc, group) => {
     return acc;
 }, {});
 
+let singleton = null;
+
 export function initProfileTagSelector({ characterId }) {
+    if (singleton) {
+        singleton.setCharacterId(characterId);
+        return;
+    }
+
     const PLUS = '+';
     const MINUS = '\u2212';
     const CROSS = '\u00d7';
@@ -203,7 +210,7 @@ export function initProfileTagSelector({ characterId }) {
 
     menu.classList.add('profile-tags-menu');
 
-    const canEdit = !!characterId;
+    let canEdit = !!characterId;
     toggle.disabled = false;
     toggle.title = canEdit ? '' : 'Selectionnez un personnage pour modifier les tags';
 
@@ -426,4 +433,17 @@ export function initProfileTagSelector({ characterId }) {
     renderMenu();
     renderSelected();
     setOpen(false);
+
+    singleton = {
+        setCharacterId(nextCharacterId) {
+            characterId = nextCharacterId;
+            canEdit = !!characterId;
+            toggle.disabled = false;
+            toggle.title = canEdit ? '' : 'Selectionnez un personnage pour modifier les tags';
+            selectedIds = canEdit ? loadSelected(characterId) : [];
+            if (isOpen()) setOpen(false);
+            renderMenu();
+            renderSelected();
+        }
+    };
 }
