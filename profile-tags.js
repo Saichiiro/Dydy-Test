@@ -203,11 +203,11 @@ export function initProfileTagSelector({ characterId }) {
 
     menu.classList.add('profile-tags-menu');
 
-    const enabled = !!characterId;
-    toggle.disabled = !enabled;
-    toggle.title = enabled ? '' : 'Selectionnez un personnage pour modifier les tags';
+    const canEdit = !!characterId;
+    toggle.disabled = false;
+    toggle.title = canEdit ? '' : 'Selectionnez un personnage pour modifier les tags';
 
-    let selectedIds = enabled ? loadSelected(characterId) : [];
+    let selectedIds = canEdit ? loadSelected(characterId) : [];
     let searchQuery = '';
 
     const isOpen = () => !menu.hidden;
@@ -245,6 +245,7 @@ export function initProfileTagSelector({ characterId }) {
         if (open) {
             menu.style.visibility = 'hidden';
             requestAnimationFrame(() => {
+                renderMenu();
                 positionMenu();
                 menu.style.visibility = 'visible';
                 const search = menu.querySelector('.profile-tags-search-input');
@@ -260,6 +261,33 @@ export function initProfileTagSelector({ characterId }) {
 
     function renderMenu() {
         menu.innerHTML = '';
+
+        if (!canEdit) {
+            const empty = document.createElement('div');
+            empty.className = 'profile-tags-empty';
+            empty.textContent = 'Selectionnez un personnage pour gerer les tags.';
+
+            const actions = document.createElement('div');
+            actions.className = 'profile-tags-menu-actions';
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-primary';
+            btn.textContent = 'Selectionner un personnage';
+            btn.addEventListener('click', () => {
+                setOpen(false);
+                const selector = document.getElementById('characterSelector');
+                if (selector) {
+                    selector.focus();
+                } else {
+                    window.location.href = 'characters.html';
+                }
+            });
+
+            actions.appendChild(btn);
+            menu.append(empty, actions);
+            return;
+        }
 
         const header = document.createElement('div');
         header.className = 'profile-tags-menu-header';
@@ -320,7 +348,7 @@ export function initProfileTagSelector({ characterId }) {
         if (!selectedIds.length) {
             const hint = document.createElement('span');
             hint.className = 'profile-tags-empty';
-            hint.textContent = enabled ? 'Aucun tag selectionne.' : '—';
+            hint.textContent = canEdit ? 'Aucun tag selectionne.' : 'Selectionnez un personnage.';
             selected.appendChild(hint);
             return;
         }
@@ -360,7 +388,6 @@ export function initProfileTagSelector({ characterId }) {
 
     toggle.addEventListener('click', (e) => {
         e.preventDefault();
-        if (!enabled) return;
         setOpen(!isOpen());
     });
 
@@ -399,4 +426,3 @@ export function initProfileTagSelector({ characterId }) {
     renderSelected();
     setOpen(false);
 }
-
