@@ -263,9 +263,15 @@
                 <section class="profile-panel">
                     <h2 class="profile-panel-title">Raccourcis</h2>
                     <ul class="profile-links-list">
-                        <li><a href="fiche.html">Fiche personnage</a></li>
+                        <li class="profile-shortcut-item">
+                            <button type="button" class="profile-shortcut-btn" data-panel="fiche">Fiche personnage</button>
+                            <a class="profile-shortcut-open" href="fiche.html" title="Ouvrir la page complète">↗</a>
+                        </li>
                         <li><a href="magie.html">Fiche magie</a></li>
-                        <li><a href="inventaire.html">Inventaire</a></li>
+                        <li class="profile-shortcut-item">
+                            <button type="button" class="profile-shortcut-btn" data-panel="inventaire">Inventaire</button>
+                            <a class="profile-shortcut-open" href="inventaire.html" title="Ouvrir la page complète">↗</a>
+                        </li>
                         <li><a href="hdv.html">Hôtel de vente</a></li>
                         <li><a href="index.html">Objets</a></li>
                     </ul>
@@ -356,6 +362,8 @@
             isAdmin
         } from './js/auth.js';
         import { initProfileTagSelector } from './js/profile-tags.js';
+        import { createPanelHost } from './js/ui/panel-host.js';
+        import { getPanelById } from './js/panels/registry.js';
 
         const authControls = document.getElementById('authControls');
         const profileContent = document.getElementById('profileContent');
@@ -364,6 +372,7 @@
         let currentCharacter = null;
         let userCharacters = [];
         let userLinkButton = null;
+        let panelHost = null;
 
         const createBackdrop = document.getElementById('createCharacterBackdrop');
         const createForm = document.getElementById('createCharacterForm');
@@ -398,6 +407,51 @@
             createError.classList.add('visible');
         }
 
+        function getPanelContext() {
+            return {
+                user: currentUser,
+                character: currentCharacter,
+                isAdmin: isAdmin(),
+            };
+        }
+
+        function renderPanel(panelId) {
+            if (!panelHost) panelHost = createPanelHost();
+            const panel = getPanelById(panelId);
+            if (!panel) return;
+
+            const node = panel.renderPanel(getPanelContext());
+            panelHost.open({
+                panelId: panel.id,
+                titleText: panel.title,
+                fullPageHref: panel.fullPageHref,
+                fullPageLabel: panel.fullPageLabel,
+                node,
+            });
+        }
+
+        function rerenderOpenPanelIfAny() {
+            if (!panelHost || !panelHost.isOpen()) return;
+            const current = panelHost.getCurrentPanelId();
+            if (current) renderPanel(current);
+        }
+
+        function setupShortcutPanels() {
+            if (!panelHost) panelHost = createPanelHost();
+
+            document.querySelectorAll('.profile-shortcut-btn[data-panel]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    renderPanel(btn.getAttribute('data-panel'));
+                });
+            });
+
+            // Cross-tab updates
+            window.addEventListener('storage', (event) => {
+                if (event.key !== 'astoria_active_character') return;
+                rerenderOpenPanelIfAny();
+            });
+        }
+
         // Initialize page
         async function init() {
             currentUser = getCurrentUser();
@@ -407,6 +461,8 @@
                 showNotLoggedIn();
                 return;
             }
+
+            setupShortcutPanels();
 
             // Logged in - render auth controls
             renderAuthControls();
@@ -467,18 +523,6 @@
             });
 
             authControls.append(badge, userLinkButton, logoutButton);
-            return;
-
-            authControls.innerHTML = `
-                <span class="user-badge">${roleBadge}</span>
-                <span style="color: var(--color-gray-700); font-weight: 600;">${currentUser.username}</span>
-                <button class="auth-button secondary" id="logoutBtn">Déconnexion</button>
-            `;
-
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                logout();
-                window.location.reload();
-            });
         }
 
         function updateAuthUserLabel() {
@@ -549,6 +593,7 @@
                         initProfileTagSelector({ characterId: null });
                     }
                     updateAuthUserLabel();
+                    rerenderOpenPanelIfAny();
                 });
             } else {
                 selectorEl.replaceChildren();
@@ -714,6 +759,7 @@
                     initProfileTagSelector({ characterId: null });
                 }
                 updateAuthUserLabel();
+                rerenderOpenPanelIfAny();
             } catch (err) {
                 console.error(err);
                 showCreateError('Impossible de créer le personnage.');

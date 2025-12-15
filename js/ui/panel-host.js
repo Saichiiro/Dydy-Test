@@ -1,0 +1,138 @@
+export function createPanelHost({ root = document.body } = {}) {
+  if (!root) throw new Error("createPanelHost: root is required");
+
+  const previousFocusStack = [];
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "panel-backdrop";
+  backdrop.hidden = true;
+
+  const drawer = document.createElement("aside");
+  drawer.className = "panel-drawer";
+  drawer.setAttribute("role", "dialog");
+  drawer.setAttribute("aria-modal", "true");
+  drawer.setAttribute("aria-hidden", "true");
+
+  const header = document.createElement("div");
+  header.className = "panel-header";
+
+  const title = document.createElement("div");
+  title.className = "panel-title";
+  title.id = "panelTitle";
+  drawer.setAttribute("aria-labelledby", title.id);
+
+  const actions = document.createElement("div");
+  actions.className = "panel-actions";
+
+  const openFullLink = document.createElement("a");
+  openFullLink.className = "panel-open-full";
+  openFullLink.target = "_self";
+  openFullLink.rel = "noopener";
+  openFullLink.hidden = true;
+  openFullLink.textContent = "Ouvrir la page complète";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.type = "button";
+  closeBtn.className = "panel-close";
+  closeBtn.setAttribute("aria-label", "Fermer");
+  closeBtn.textContent = "×";
+
+  actions.appendChild(openFullLink);
+  actions.appendChild(closeBtn);
+  header.appendChild(title);
+  header.appendChild(actions);
+
+  const content = document.createElement("div");
+  content.className = "panel-content";
+
+  drawer.appendChild(header);
+  drawer.appendChild(content);
+
+  root.appendChild(backdrop);
+  root.appendChild(drawer);
+
+  let isOpen = false;
+  let currentPanelId = null;
+
+  function setOpenFullPage({ href, label } = {}) {
+    if (!href) {
+      openFullLink.hidden = true;
+      openFullLink.removeAttribute("href");
+      openFullLink.textContent = "Ouvrir la page complète";
+      return;
+    }
+
+    openFullLink.hidden = false;
+    openFullLink.href = href;
+    openFullLink.textContent = label || "Ouvrir la page complète";
+  }
+
+  function setTitle(text) {
+    title.textContent = text || "";
+  }
+
+  function setContent(node) {
+    content.replaceChildren();
+    if (node) content.appendChild(node);
+  }
+
+  function open({ panelId, titleText, fullPageHref, fullPageLabel, node } = {}) {
+    if (isOpen) {
+      setTitle(titleText);
+      setOpenFullPage({ href: fullPageHref, label: fullPageLabel });
+      setContent(node);
+      currentPanelId = panelId || null;
+      return;
+    }
+
+    previousFocusStack.push(document.activeElement);
+
+    setTitle(titleText);
+    setOpenFullPage({ href: fullPageHref, label: fullPageLabel });
+    setContent(node);
+    currentPanelId = panelId || null;
+
+    isOpen = true;
+    document.documentElement.classList.add("panel-open");
+    backdrop.hidden = false;
+    drawer.setAttribute("aria-hidden", "false");
+    closeBtn.focus({ preventScroll: true });
+  }
+
+  function close() {
+    if (!isOpen) return;
+    isOpen = false;
+    currentPanelId = null;
+
+    document.documentElement.classList.remove("panel-open");
+    drawer.setAttribute("aria-hidden", "true");
+    backdrop.hidden = true;
+    setContent(null);
+    setOpenFullPage({ href: null });
+
+    const previous = previousFocusStack.pop();
+    if (previous && typeof previous.focus === "function") {
+      previous.focus({ preventScroll: true });
+    }
+  }
+
+  backdrop.addEventListener("click", close);
+  closeBtn.addEventListener("click", close);
+
+  window.addEventListener("keydown", (event) => {
+    if (!isOpen) return;
+    if (event.key === "Escape") close();
+  });
+
+  return {
+    open,
+    close,
+    isOpen: () => isOpen,
+    getCurrentPanelId: () => currentPanelId,
+    setTitle,
+    setContent,
+    setOpenFullPage,
+    elements: { backdrop, drawer, header, content, title, actions, closeBtn, openFullLink },
+  };
+}
+
