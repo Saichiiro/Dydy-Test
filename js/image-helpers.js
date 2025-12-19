@@ -1,5 +1,5 @@
 (function () {
-    const basePath = "assets/images/";
+    const basePath = "assets/images/objets/";
     const preloadCache = new Map();
 
     function normalizeName(name) {
@@ -57,9 +57,13 @@
         const key = normalizeName(name);
         const override = overridesByKey[key];
         const gallery = galleriesByKey[key];
-        const rawImage = item && (item.image || item.img || "");
+    const rawImage = item && (item.image || item.img || "");
+    const normalizedRawImage =
+        rawImage && rawImage.startsWith("assets/images/") && !rawImage.startsWith(basePath)
+            ? basePath + rawImage.replace(/^assets\/images\//, "")
+            : rawImage;
 
-        const primaryCandidate = (gallery && gallery[0]) || override || rawImage;
+    const primaryCandidate = (gallery && gallery[0]) || override || normalizedRawImage;
         const primary = primaryCandidate || largePlaceholder;
 
         const galleryList =

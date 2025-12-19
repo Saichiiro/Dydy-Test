@@ -120,7 +120,7 @@ VALUES (
     'Commun',
     50,
     0,
-    '{"primary": "assets/images/Poudre_de_Tracage.png"}'::jsonb,
+    '{"primary": "assets/images/objets/Poudre_de_Tracage.png"}'::jsonb,
     '["Détection", "Utilitaire"]'::jsonb,
     true
 );

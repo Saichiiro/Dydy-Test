@@ -2,7 +2,7 @@ const inventoryData = [
     {
         name: "Poudre de Traçage",
         category: "consommable",
-        image: "assets/images/Poudre de Tra‡age.png",
+        image: "assets/images/objets/Poudre_de_Tracage.png",
         description: "[Description de l'objet, utilité, durabilité de l'effet, ...]",
         buyPrice: "",
         sellPrice: "",
@@ -11,7 +11,7 @@ const inventoryData = [
     {
         name: "Larme de Matera",
         category: "consommable",
-        image: "assets/images/Larme de Matera.png",
+        image: "assets/images/objets/Larme_de_Matera.png",
         description: "[Description de l'objet, utilité, durabilité de l'effet, ...]",
         buyPrice: "",
         sellPrice: "",
@@ -20,7 +20,7 @@ const inventoryData = [
     {
         name: "Fruit Papooru",
         category: "agricole",
-        image: "assets/images/Fruit_Papooru.jpg",
+        image: "assets/images/objets/Fruit_Papooru.jpg",
         description: "[Description de l'objet, utilité, durabilité de l'effet, ...]",
         buyPrice: "",
         sellPrice: "",
@@ -29,7 +29,7 @@ const inventoryData = [
     {
         name: "Fiole de vitalité",
         category: "consommable",
-        image: "assets/images/Fiole de vitalit‚.jpg",
+        image: "assets/images/objets/Fiole_de_vitalite.jpg",
         description: "[Description de l'objet, utilité, durabilité de l'effet, ...]",
         buyPrice: "",
         sellPrice: "",
@@ -38,7 +38,7 @@ const inventoryData = [
     {
         name: "Parchemin d'Éveil",
         category: "consommable",
-        image: "assets/images/Parchemin d'Eveil.jpg",
+        image: "assets/images/objets/Parchemin_Eveil.jpg",
         description: "[Description de l'objet, utilité, durabilité de l'effet, ...]",
         buyPrice: "",
         sellPrice: "",
@@ -47,7 +47,7 @@ const inventoryData = [
     {
         name: "Parchemin d'Ascension",
         category: "consommable",
-        image: "assets/images/Parchemin d'Ascension.jpg",
+        image: "assets/images/objets/Parchemin_Ascension.jpg",
         description: "[Description de l'objet, utilité, durabilité de l'effet, ...]",
         buyPrice: "",
         sellPrice: "",
@@ -56,7 +56,7 @@ const inventoryData = [
     {
         name: "Clef Manndorf",
         category: "consommable",
-        image: "assets/images/Cle_Manndorf.png",
+        image: "assets/images/objets/Clef_Manndorf.png",
         description:
             "Petite clé mécanique rare, composée de rouages de cuivre et d'ailes de chauve-souris taillées dans une pierre obscure. " +
             "Lorsqu'elle est activée, la clé ouvre un passage vers une quête adaptative dont la difficulté s'ajuste au niveau du joueur et de son équipe. " +
@@ -70,7 +70,7 @@ const inventoryData = [
     {
         name: "Armure de Vexarion",
         category: "equipement",
-        image: "assets/images/Armure de Vexarion.png",
+        image: "assets/images/objets/Armure_de_Vexarion.png",
         description:
             "Cette armure luxueuse, forgée dans les lumières iridescentes du domaine divin, est un artefact sacré offert par Vexarion, Dieu de la Guerre et de la Stratégie. " +
             "Chaque plaque scintille d'un éclat changeant, comme si elle absorbait et reflétait la droiture du porteur. " +
@@ -85,7 +85,7 @@ const inventoryData = [
     {
         name: "Sceptre de Krythus",
         category: "equipement",
-        image: "assets/images/Sceptre de Krythus.png",
+        image: "assets/images/objets/Sceptre_de_Krythus.png",
         description:
             "Artefact sacré façonné dans les glaces du mont le plus haut, le Sceptre de Krythus incarne la puissance implacable de Krythus, Dieu de l'Hiver et des Tempêtes de Glace. " +
             "Sa tige gravée de runes givrées s'allonge d'elle-même pour s'adapter parfaitement à la taille de son porteur, comme si l'arme reconnaissait instinctivement son maître. " +
@@ -116,7 +116,7 @@ const inventoryData = [
     {
         name: "Book Of Aeris",
         category: "consommable",
-        image: "assets/images/Book_of_Aeris.png",
+        image: "assets/images/objets/Book_of_Aeris.png",
         description:
             "Petit livre rare, d'une teinte bleue ornée d'une larme sur sa couverture. Lorsqu'il est activé, le livre ouvre un passage vers une quête adaptative dont la difficulté s'ajuste au niveau du joueur et de son équipe. " +
             "Jusqu'à cinq aventuriers peuvent franchir la brèche et entrer dans l'univers qu'il révèle, un conte vivant d'Astoria aux récompenses mystères uniques adaptées à leur progression. " +
@@ -130,7 +130,7 @@ const inventoryData = [
     {
         name: "The Queen's Poison",
         category: "consommable",
-        image: "assets/images/The_Queens_Poison.png",
+        image: "assets/images/objets/The_Queens_Poison.png",
         description:
             "Il y a de très nombreuses années, une reine isolée, dont le roi était tombé au combat, vit son trône et son royaume acculés. " +
             "Pour protéger son peuple qui baignait le sol de son sang, elle pria de toutes ses forces. " +
@@ -146,7 +146,7 @@ const inventoryData = [
     {
         name: "Cloche de Résonnance",
         category: "equipement",
-        image: "assets/images/Cloche_de_Resonnance.png",
+        image: "assets/images/objets/Cloche_de_Resonnance.png",
         description:
             "Petit artefact rare aux teintes noires et or. Lorsqu'elle est agitée, la cloche permet de révéler par semi-transparence un décor invisible, comme des chemins secrets, " +
             "en utilisant un principe d'écholocalisation magique. " +
@@ -161,7 +161,7 @@ const inventoryData = [
     {
         name: "Veille'Nuit",
         category: "agricole",
-        image: "assets/images/VeilleNuit.png",
+        image: "assets/images/objets/VeilleNuit.png",
         description:
             "Fruit ancien ne poussant que sur les terres de Sancturia. En le croquant et en le mangeant, les utilisateurs deviennent lumineux, " +
             "éclairant leur environnement quelles que soient les conditions et leur permettant de se repérer dans les ténèbres. " +
@@ -180,7 +180,7 @@ const inventoryData = [
     // - ou ajoutez un nouveau bloc :
     //   {
     //       name: "Nom de l'objet",
-    //       image: "assets/images/Mon_Image.png",
+    //       image: "assets/images/objets/Mon_Image.png",
     //       description: "Description de l'objet, utilité, durabilité de l'effet, ...",
     //       buyPrice: "prix d'achat",
     //       sellPrice: "prix de vente",
