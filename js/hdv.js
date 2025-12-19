@@ -452,7 +452,7 @@ async function refreshProfile() {
 
 async function refreshSearch() {
     renderChips();
-    setStatus(dom.search.status, 'Chargement…');
+    setStatus(dom.search.status, '');
 
     const filters = {
         q: state.filters.q,
@@ -584,7 +584,7 @@ async function refreshMine() {
     }
 
     dom.mine.create.disabled = false;
-    setStatus(dom.mine.status, 'Chargement…', 'info');
+    setStatus(dom.mine.status, '', 'info');
 
     try {
         const listings = await getMyListings();
@@ -654,7 +654,7 @@ async function refreshHistory() {
         return;
     }
 
-    setStatus(dom.history.status, 'Chargement…', 'info');
+    setStatus(dom.history.status, '', 'info');
     try {
         const transactions = await getMyHistory();
         renderHistory(transactions);

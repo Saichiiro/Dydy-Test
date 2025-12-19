@@ -60,8 +60,6 @@
         isAdmin: document.body.dataset.admin === "true",
     };
 
-    // Placeholder minimal pour l'état de chargement
-    addLoadingPlaceholder();
     await initPersistence();
 
     if (!skillsState.isAdmin) {
@@ -450,14 +448,6 @@
         const li = document.createElement("li");
         li.className = "skills-line skills-placeholder";
         li.textContent = message;
-        skillsListEl.appendChild(li);
-    }
-
-    function addLoadingPlaceholder() {
-        if (!skillsListEl) return;
-        const li = document.createElement("li");
-        li.className = "skills-line skills-placeholder";
-        li.textContent = "Chargement...";
         skillsListEl.appendChild(li);
     }
 

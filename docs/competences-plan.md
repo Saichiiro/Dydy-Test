@@ -6,7 +6,6 @@
 - ✅ P4 — Ajouter `<main>` + conteneur `role="navigation"` harmonisés sur toutes les pages.
 - ✅ P1 — Externaliser le bloc `<script>` de `competences.html` vers `competences.js`.
 - ✅ P1 — Accessibilité/clavier : rôles tablist/tab, aria-selected, navigation fléchée, aria-live sur le compteur.
-- ✅ P1 — États de chargement/erreur minimalistes (placeholder "Chargement..." et fallback vide).
 - ✅ P1 — Points à répartir : règles admin/joueur, +/− par compétence selon compteur, bouton de validation/lock.
 - ✅ P1 — Persistance simple par onglet + bouton de réinitialisation dédié (localStorage, reset) sans sur-ingénierie.
 - ✅ P3 — Lien de retour vers `categories.html` et nettoyage DOM (icônes non inline, escapeHtml si nécessaire).
@@ -37,9 +36,6 @@
   - Ajouter gestion clavier sur onglets : `keydown` flèches gauche/droite et `Home/End` pour naviguer entre boutons `.skills-tab-btn`, focus visible et réordonnancement de l’activation via `space/enter` (sur les éléments créés dans `renderSkillsTabs`).
   - Définir `role="tablist"` sur `#skillsTabs`, `role="tab"` sur les boutons et `aria-selected` synchronisé dans `renderSkillsTabs` / `setActiveSkillsCategory`.
   - Encapsuler la liste dans `<section aria-labelledby="skillsCategoryTitle">` (déjà présent) et ajouter `role="status"` ou `aria-live="polite"` sur le conteneur de points (lignes 404-413) pour annoncer les changements.
-- **États de chargement / erreurs minimalistes (YAGNI)**
-  - Avant le rendu initial, afficher un placeholder `li` "Chargement..."; retirer après `renderSkillsCategory`.
-  - Entourer les lectures de `skillsCategories` d’un guard simple (fallback message "Aucune compétence" si vide) sans ajouter de state management complexe.
 - **Points à répartir : logique admin / joueur**
   - Admin uniquement : garder les boutons `+` / `−` du compteur global "points à répartir" pour l’allocation initiale (boutons non rendus côté joueur).
   - Joueur : afficher le compteur "points à répartir" (en lecture seule) par onglet, sans les boutons `+` / `−` globaux.
