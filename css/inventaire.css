@@ -395,8 +395,6 @@
     color: var(--color-primary-dark);
 }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 .item-preview {
     display: none;
 }
@@ -414,9 +412,8 @@
 .item-preview-description {
     font-size: var(--text-sm);
     color: var(--color-gray-600);
-=======
-=======
->>>>>>> Stashed changes
+}
+
 /* Scroll types panel */
 .scroll-types-panel {
     background: var(--color-white);
@@ -696,10 +693,6 @@
     background: var(--color-primary-lighter);
     color: var(--color-gray-600);
     font-size: var(--text-sm);
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 }
 
 /* Add item button */

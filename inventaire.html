@@ -50,18 +50,8 @@
                 <div class="inventory-grid" id="inventoryGrid">
                     <!-- Items will be rendered here by JS -->
                 </div>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                 <div class="empty-inventory is-hidden" id="emptyState">
-                    <div class="empty-state-icon">📦</div>
-=======
-                <div class="empty-inventory" id="emptyState" style="display: none;">
                     <div class="empty-state-icon">&#x1F4E6;</div>
->>>>>>> Stashed changes
-=======
-                <div class="empty-inventory" id="emptyState" style="display: none;">
-                    <div class="empty-state-icon">&#x1F4E6;</div>
->>>>>>> Stashed changes
                     <div class="empty-state-title">Aucun objet</div>
                     <div class="empty-state-message">Votre inventaire est vide dans cette catégorie</div>
                 </div>
@@ -71,7 +61,7 @@
                         <div class="inventory-detail" id="itemDetail">
                 <div class="detail-placeholder">
                     <div class="placeholder-icon">&#x1F446;</div>
-                    <p>S\u00E9lectionnez un objet pour voir ses d\u00E9tails</p>
+                    <p>Sélectionnez un objet pour voir ses détails</p>
                 </div>
                 <!-- Details will be rendered here when item is selected -->
             </div>
@@ -691,7 +681,7 @@
             }
 
             if (quantity < 1) {
-                alert('La quantit\u00E9 doit \u00EAtre au moins 1');
+                alert('La quantit? doit ?tre au moins 1');
                 return;
             }
 
@@ -762,6 +752,12 @@
         itemSelect.addEventListener('change', handleItemSelection);
         qtyMinusBtn.addEventListener('click', decreaseQuantity);
         qtyPlusBtn.addEventListener('click', increaseQuantity);
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            if (addPanel.classList.contains('open')) {
+                closeAddPanel();
+            }
+        });
 
         if (scrollPanelAddBtn) {
             scrollPanelAddBtn.addEventListener('click', () => {
@@ -1044,10 +1040,20 @@
             if (!scrollPanelTitle || !scrollPanelList || !scrollPanelEmpty) return;
 
             const titleText = category === 'eveil' ? 'Éveil' : 'Ascension';
+            const visibleTypes = SCROLL_TYPES.filter((type) => (counts[type.key] || 0) > 0);
             scrollPanelTitle.textContent = titleText;
+
+            if (visibleTypes.length === 0) {
+                scrollPanelEmpty.textContent = 'Aucun type enregistré pour ce parchemin.';
+                scrollPanelEmpty.style.display = 'block';
+                scrollPanelList.innerHTML = '';
+                scrollPanelList.style.display = 'none';
+                return;
+            }
+
             scrollPanelEmpty.style.display = 'none';
             scrollPanelList.style.display = 'grid';
-            const rows = SCROLL_TYPES.map((type) => {
+            const rows = visibleTypes.map((type) => {
                 const count = counts[type.key] || 0;
                 const isSelected = type.key === selectedScrollTypeKey;
                 return `
@@ -1276,7 +1282,7 @@
          */
         function showItemDetail(item) {
             const categoryLabels = {
-                equipement: '&#x2694;&#xFE0F; \u00C9quipement',
+                equipement: '&#x2694;&#xFE0F; ?quipement',
                 consommable: '&#x1F9EA; Consommable',
                 agricole: '&#x1F33E; Agricole'
             };
@@ -1296,7 +1302,7 @@
             const priceInfo = [];
             if (item.buyPrice) priceInfo.push(`Achat: ${item.buyPrice}`);
             if (item.sellPrice) priceInfo.push(`Vente: ${item.sellPrice}`);
-            const priceText = priceInfo.length > 0 ? priceInfo.join(' | ') : 'Prix non d\u00E9fini';
+            const priceText = priceInfo.length > 0 ? priceInfo.join(' | ') : 'Prix non défini';
 
             // Resolve image
             const imageSrc = resolveImage(item);
@@ -1358,7 +1364,7 @@
                     </div>
                     ${item.quantity > 1 ? `
                     <div class="detail-section">
-                        <span class="detail-label">Quantit\u00E9</span>
+                        <span class="detail-label">Quantit?</span>
                         <p class="detail-text">x${item.quantity}</p>
                     </div>
                     ` : ''}
@@ -1384,7 +1390,7 @@
             detailPanel.innerHTML = `
                 <div class="detail-placeholder">
                     <div class="placeholder-icon">&#x1F446;</div>
-                    <p>S\u00E9lectionnez un objet pour voir ses d\u00E9tails</p>
+                    <p>Sélectionnez un objet pour voir ses détails</p>
                 </div>
             `;
             scrollPanelToggleBtn = null;
@@ -1432,7 +1438,7 @@
             const item = inventoryItems[itemIndex];
 
             if (item.quantity < 1) {
-                alert('Quantit\u00E9 insuffisante pour utiliser cet objet');
+                alert('Quantit? insuffisante pour utiliser cet objet');
                 return;
             }
 
@@ -1504,7 +1510,7 @@
             const qtyToDelete = parseInt(deleteQuantityInput.value) || 1;
 
             if (qtyToDelete < 1) {
-                alert('La quantit\u00E9 doit \u00EAtre au moins 1');
+                alert('La quantit? doit ?tre au moins 1');
                 return;
             }
 
