@@ -216,6 +216,7 @@ export function initProfileTagSelector({ characterId }) {
 
     let selectedIds = canEdit ? loadSelected(characterId) : [];
     let searchQuery = '';
+    const groupState = {};
 
     const isOpen = () => !menu.hidden;
 
@@ -324,11 +325,28 @@ export function initProfileTagSelector({ characterId }) {
             const groupEl = document.createElement('div');
             groupEl.className = 'profile-tags-group';
 
-            const title = document.createElement('div');
+            const isCollapsed = query ? false : !!groupState[group.title];
+            groupEl.dataset.collapsed = isCollapsed ? 'true' : 'false';
+
+            const titleRow = document.createElement('button');
+            titleRow.type = 'button';
+            titleRow.className = 'profile-tags-group-toggle';
+            titleRow.setAttribute('aria-expanded', String(!isCollapsed));
+            titleRow.addEventListener('click', () => {
+                groupState[group.title] = !isCollapsed;
+                renderMenu();
+            });
+
+            const title = document.createElement('span');
             title.className = 'profile-tags-group-title';
             title.textContent = group.title;
 
-            groupEl.appendChild(title);
+            const caret = document.createElement('span');
+            caret.className = 'profile-tags-group-caret';
+            caret.textContent = 'v';
+
+            titleRow.append(title, caret);
+            groupEl.appendChild(titleRow);
 
             for (const tag of filteredTags) {
                 const labelEl = document.createElement('label');

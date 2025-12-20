@@ -221,8 +221,8 @@
             <a href="index.html" class="magic-back-link" title="Retour à l'accueil">← Retour</a>
             <div class="profile-header-main">
                 <div class="profile-title-block">
-                    <h1 class="profile-title" id="profileTitle">Profil de joueur</h1>
-                    <p class="profile-subtitle">Espace personnel inspiré de SailorFuku — version de base.</p>
+                    <h1 class="profile-title" id="profileTitle">Mon look</h1>
+                    <p class="profile-subtitle">Espace personnel - version de base.</p>
                 </div>
                 <div class="profile-summary-card" aria-label="Résumé du joueur">
                     <div class="profile-avatar-large">
@@ -260,7 +260,7 @@
                     </div>
                 </section>
 
-                <section class="profile-panel">
+                <section class="profile-panel" id="profileShortcutsPanel">
                     <h2 class="profile-panel-title">Raccourcis</h2>
                     <ul class="profile-links-list">
                         <li class="profile-shortcut-item">
@@ -289,37 +289,6 @@
                         Zone de présentation du joueur et de son personnage. On pourra y coller du contenu HTML libre, des blocs de texte,
                         ou des extraits de la fiche personnage. Pour l’instant, ceci n’est qu’un gabarit de base.
                     </p>
-                </section>
-
-                <section class="profile-section">
-                    <header class="profile-section-header">
-                        <h2 class="profile-section-title">Vitrine RP</h2>
-                    </header>
-                    <p class="profile-placeholder-text">
-                        Cette section pourra accueillir une liste de liens vers des RPs, des clubs, ou des éléments “wishlist”
-                        inspirés de SailorFuku. À remplir plus tard selon les besoins.
-                    </p>
-                </section>
-
-                <section class="profile-section">
-                    <header class="profile-section-header">
-                        <h2 class="profile-section-title">Commentaires</h2>
-                    </header>
-                    <div class="profile-comments">
-                        <div class="profile-comment-card profile-comment-card--placeholder">
-                            <div class="profile-comment-avatar">🙂</div>
-                            <div class="profile-comment-content">
-                                <div class="profile-comment-header">
-                                    <span class="profile-comment-author">Un visiteur</span>
-                                    <span class="profile-comment-meta">Date à venir</span>
-                                </div>
-                                <p class="profile-comment-text">
-                                    Ici, les autres joueurs pourront laisser un petit mot sur le profil. Cette zone est pour l’instant
-                                    une simple maquette sans logique de stockage.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
                 </section>
             </section>
         </section>
@@ -368,6 +337,7 @@
 
         const authControls = document.getElementById('authControls');
         const profileContent = document.getElementById('profileContent');
+        const shortcutsPanel = document.getElementById('profileShortcutsPanel');
 
         let currentUser = null;
         let currentCharacter = null;
@@ -414,6 +384,13 @@
                 character: currentCharacter,
                 isAdmin: isAdmin(),
             };
+        }
+
+        function updateShortcutsVisibility() {
+            if (!shortcutsPanel) return;
+            const ownerId = currentCharacter && currentCharacter.user_id ? currentCharacter.user_id : null;
+            const isOwner = !!currentUser && (!ownerId || ownerId === currentUser.id);
+            shortcutsPanel.hidden = !isOwner;
         }
 
         function renderPanel(panelId) {
@@ -558,6 +535,7 @@
                 initProfileTagSelector({ characterId: currentCharacter.id });
                 updateAuthUserLabel();
             }
+            updateShortcutsVisibility();
         }
 
         function renderCharacterSelector() {
@@ -595,6 +573,7 @@
                     }
                     updateAuthUserLabel();
                     rerenderOpenPanelIfAny();
+                    updateShortcutsVisibility();
                 });
             } else {
                 selectorEl.replaceChildren();
